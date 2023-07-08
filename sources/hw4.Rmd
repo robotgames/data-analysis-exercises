@@ -1,0 +1,311 @@
+# The Fourth Homework: Exploratory Data Analysis Part I
+
+*Note:* Exploratory Data Analysis, or EDA, is the process in which we explore the data to see what's there.  This process involves creating tables and plots, and applying summary statistics.
+
+## Summary Statistics
+
+Load the plant growth data set in R with
+
+```{r}
+data("PlantGrowth")
+```
+
+(a) Summarize this data set with `summary`.
+
+```{r,echo=FALSE,eval=FALSE}
+summary(PlantGrowth)
+```
+
+
+(b) Find the width of the range of the weight data (max - min).  Answer:
+
+```{r,echo=FALSE}
+my_range <- max(PlantGrowth$weight)-min(PlantGrowth$weight)
+my_range
+```
+
+
+(c) Estimate the standard deviation of the weight variable using the range / 4 estimate.  Answer:
+
+```{r,echo=FALSE}
+my_range/4
+```
+
+
+(d) Compute the standard deviation of the weight variable.  How close is your estimate in part (c)?  Answer:
+
+```{r,echo=FALSE}
+sd(PlantGrowth$weight)
+```
+
+(e) Compute the median weights of each of the individual groups.  You will have to filter to isolate each group's weight data first.  For example, the median weight for the control group is
+
+```{r}
+control_group_weight <- PlantGrowth$weight[ PlantGrowth$group == "ctrl" ]
+quantile(control_group_weight,0.50) # or median(control_group_weight)
+```
+
+## Using a Table
+
+Use `table()` to summarize the `group` variable in the `PlantGrowth` data set from the previous exercise.  Answer:
+
+```{r,echo=FALSE}
+library(kableExtra)
+library(tidyverse)
+kable(table(PlantGrowth$group))
+```
+
+## Summarizing Data by Group
+
+In this exercise we will use the `group_by` and `summarize` commands in the `tidyverse` to summarize a variable by group.  Let's work with the iris data set.  Load this and the `tidyverse` package with 
+
+```{r}
+data("iris")
+library("tidyverse")
+```
+
+(a) Let's see some example code.  I have added some empty comments in this code.  Copy it, and add comments describing what the line below each comment is doing.
+ 
+```{r}
+# 
+grouped_iris <- group_by(iris,Species)
+# 
+summarized_data <- summarize(grouped_iris,median = median(Petal.Length))
+# 
+summarized_data
+```
+ 
+ (b) As it turns out, you can perform more than one summarizing measurement at once.  Repeat part (a) for the following code:
+
+```{r}
+# 
+grouped_iris <- group_by(iris,Species)
+# 
+summarized_data <- summarize(grouped_iris,
+                             median = median(Petal.Length),
+                             std.dev = sd(Petal.Length),
+                             group_size = n())
+# 
+summarized_data
+``` 
+ 
+ (c) And, as it turns out, you can use the magic of pipes in the `tidyverse` to make all of this flow very nicely.  
+ 
+ Pipes connect data operations.  Each data operation must take a data frame (or compatible object) as the first input and must produce a data frame as output.  You'll notice after a bit that many functions in the tidyverse were written with the structure `function_name(data_frame,...)` so that they may be used in pipes.
+ 
+ When writing the system of pipes, you don't need to explicitly write the data frame input in each data operation along the way; the pipes automatically pass the data set in as the first input.  This helps keep your environment cleaner and stores fewer variables in memory.  Looking at the code above, did I *really* need to store the grouped data in `grouped_iris`, then pass it into the `summarize` function?  Nope!  Here's the code from part (a) using pipes:
+ 
+```{r}
+iris %>% 
+  group_by(Species) %>%
+  summarize(median = median(Petal.Length)) %>%
+  print()
+```
+
+Technically, you could even leave off the last pipe and the `print` statement at the end.
+
+So, for your exercise here in part (c), use pipes to rewrite the code from part (b).
+
+(d) Use pipes to create a table of summary values for the two sepal variables grouped by species in the iris data set.  Your table should provide the min and max for each of these measurements, grouped by species.  Your table should use meaningful column names for readability.  Answer:
+
+```{r,echo=FALSE}
+iris %>%
+  group_by(Species) %>%
+  summarize(Minimum.Sepal.Length = min(Sepal.Length),
+            Maximum.Sepal.Length = max(Sepal.Length),
+            Minimum.Sepal.Width = min(Sepal.Width),
+            Maximum.Sepal.Width = max(Sepal.Width)) %>%
+  kable()
+```
+
+## Thinking About Populations
+
+In each part of this exercise, I'll describe a population that researchers would like to study.  Your task is to criticize and improve the descriptions.  In particular, when describing a population, I would like a litmus test for individuals: when faced with an individual, I would like to use the description to determine whether the individual is in the population or not.
+
+But as the song says, you can't always get what you want.  Sometimes, we will have to settle for a population description working *pretty well*, *most of the time*.
+
+So, for each part, first give one or two issues with the definition of the population as written.  Then, rewrite the description of the population to be more precise.
+
+(a) All students at our university.
+
+(b) Older people in Ventura County, California.
+
+(c) All members of the species Anna's hummingbirds in Ventura County.  (See [https://sora.unm.edu/sites/default/files/journals/condor/v059n02/p0118-p0123.pdf](https://sora.unm.edu/sites/default/files/journals/condor/v059n02/p0118-p0123.pdf) for an understanding of why this might be an especially problematic population.)
+
+(d) Underperforming espresso machines in Starbucks franchises in California.
+
+(e) All people on our campus who are in love.
+
+(f) All people on our campus who are really smart.
+
+## Interval Estimators
+
+For this exercise, load the iris data set again.
+
+```{r}
+data("iris")
+```
+
+(a) Estimate the mean petal length.  Use a point estimate.  Answer:
+
+```{r,echo=FALSE}
+mean(iris$Petal.Length)
+```
+
+
+(b) How do we estimate the mean petal length using a 95% confidence interval on the mean?  Remember that you will need to gather together several components!  I've provided code below to do this and I've left empty comments.  Copy the code, and fill in the comments describing what the code below that comment is doing.
+
+```{r}
+pl <- iris$Petal.Length
+# 
+n <- length(pl)
+#
+center <- mean(pl)
+#
+t_star <- qt(0.975,df=n-1)
+# 
+scalar <- sd(pl)/sqrt(n)
+#
+margin_of_error <- t_star * scalar
+#
+confidence_interval <- center + c(-1,1)*margin_of_error
+confidence_interval
+```
+
+(c) Plot the histogram for the petal length variable.  Are the histogram and your confidence interval roughly in agreement?  Explain.  (You may need to adjust the number of breaks in the histogram to make this clearer.)
+
+(d) Repeat (b) for an 80% confidence interval.  *There should probably be a good deal of copy-paste involved.*  How are your computed 95% and 80% confidence intervals related?  Does this make sense?  Explain.
+
+(e) The code chunk in part (b) is clearly a bit unwieldy.  Write a function named `confidence_interval_mean` that automates the creation of a confidence interval on the mean.  You will need to decide what inputs to give the function and what it should output.
+
+## Introducing ggplot
+
+In this exercise you'll get some practice going beyond the basic R `hist` function to use the histogram geometry from the `tidyverse`.  We'll work with the `iris` data set,
+
+```{r,eval=FALSE}
+data("iris")
+library(tidyverse)
+```
+
+(a) The following code uses `ggplot` to create a histogram.  Copy the code and fill in the comments describing what the commands are doing.
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length)) + # 
+  geom_histogram(fill="blue",col="orange") + #
+  ggtitle("Histogram: Petal Length in the Iris data set") #
+```
+
+(b) What happens to the plot if you change the `x=Petal.Length` argument to `y=Petal.Length`?  *Note:* Generally we prefer the `y` axis in histograms to be the frequency axis.
+
+(c) Add a better label to the `x`-axis with the `xlab` function.  Remember that in `ggplot`, to add a component to a plot you *literally* add the command to your expression with a `+` sign.
+
+(d) Finish your plot.  Adjust the colors and labels, add more labels, and generally clean up your histogram to make it more presentable.
+
+
+## Grouping Plot Elements by Factor Levels
+
+
+In this exercise we'll expand on exercise 6.  One of the issues that we can see in exercise 6 is that we did not break down the plot by species.  An inspection of the data suggests that the "lump" on the left of the petal length histogram is due entirely to one species.
+
+(a) Return to your histogram code in exercise 6.  Remove any `fill` arguments in `geom_histogram`.  Then, add a `fill=Species` argument to the `aes` function inside the `ggplot` function, like `ggplot(data=iris,aes(x=Petal.Length,fill=Species))+...`.  What does this accomplish?
+
+(b) It may be difficult to see where/whether bars are overlapping.  Instead, we can break up the histograms by species into panels.  Add a graphics component `facet_wrap(~Species)` to your graphics command in part (a).  What happens?
+
+(c) Using what you have learned in this exercise and the previous one, create an informative graphic visualizing the sepal length variable in the `iris` data set.  
+
+## Density Plots
+
+
+One of the issues we have noticed with histograms is that the choice for the number of bins can greatly affect the appearance of the histogram.  How do we know what the "best" number of bins will be for a given variable?  Answer: we don't!  This is primarily because we have not defined what "best" should mean in this instance.  
+
+It's often best to produce multiple histograms for a single variable to view it at different "resolutions", and so in a sense, there is no "best" number of bins.  Another approach is to smooth off the histogram, producing a *density* plot.
+
+(a) Return to exercise 6.  Replace `geom_histogram` in the code I wrote there with `geom_density` and plot.  What happens?
+
+(b)  Remove the `fill="orange"` input to `geom_density`.  Then add the input `fill=Species` to the `aes` function in `ggplot`.  What happens?
+
+(c) It may be difficult to see where the density curves for the different species overlap.  We can add transparency to the fill.  Add the input `alpha=0.5` to the `geom_density` function.  What happens?
+
+(d) As an alternative to transparency, we can split the density curves into different panels.  Mimic what we did in exercise 7.
+
+(e) Using what you have learned, produce an informative graphic summarizing the sepal length variable in the `iris` data set.
+
+
+## Facet Wrap
+
+
+In this exercise we'll use the storms data set from the `dplyr` package (part of the `tidyverse`).
+
+```{r}
+library(tidyverse)
+data("storms")
+```
+
+(a) Use `summary` and `head` to explore the storms data set.
+
+(b) Let's make a bar plot for the `status` variable in storms.  I've provided some code to produce a very basic bar plot here:
+
+```{r}
+ggplot(data=storms,aes(y=status)) +
+  geom_bar() +
+  theme_dark()
+```
+
+Based on what you know about `ggplot`, make this plot better.  The fill on the bars should be light to contrast with the dark background, there should be a title, and the axis labels can be improved.  Do it!
+
+(c) Make a bar plot for the `category` variable in storms.  Make it look great!
+
+(d) It's not immediately clear from the two bar plots we have made what the connection - if any - is between the `status` and `category` variables.  Add a `facet_wrap(~status)` plot element to the bar plot you created in part (c).  Make sure you understand what is happening with the plot.  Then explain what the connection is between the `status` and `category` variables.
+
+## Using Cut to Create a Factor from a Numeric
+
+
+In this exercise we will create a new factor variable for the storms data set we worked with in exercise 9.  With that, we will explore the connections between our new factor variable and the existing factors `status` and `category`.  Make sure that you have loaded the `tidyverse` package and the storms data set as in exercise 9.
+
+We can use the `cut` function in R to categorize the `hurricane_force_diameter` variable.  This will take some work!
+
+(a) Are there any missing data values in the `hurricane_force_diameter` variable?  (*Hint:* Yes.  But how do you know?  Write an R code chunk to explain.)
+
+(b) Remove all of the records for which `hurricane_force_diameter` is NA using the code chunk
+
+```{r}
+filter <- !is.na(storms$hurricane_force_diameter)
+hfd <- storms[ filter, ]
+```
+
+What is `filter` "doing"?  And how many observations were filtered out of storms to produce the hfd data set?
+
+(c)  At this point we are ready to create our new factor variable.  I've done so in the following code chunk.  Explain what this is doing.  You might want to look up `cut` in the documentation.
+
+```{r}
+hfd$hurricane_force <- cut(hfd$hurricane_force_diameter,breaks=5)
+```
+
+(d) Make a bar plot for the new `hurricane_force` variable.  What does it tell you?  Do all of the categories seem to be "useful", informative?
+
+(e) Use a `group_by` and `summarize` pipe system to count the number of observations in each category of `hurricane_force` (see exercise 2 in this homework set).  Are the levels in the factor variable badly "unbalanced" in some way?
+
+(f) Re-create the `hurricane_force` factor variable using 
+
+```{r}
+hfd$hurricane_force <- cut(hfd$hurricane_force_diameter,breaks=c(-Inf,75,150,Inf))
+```
+
+Are the levels in the factor variable somewhat better balanced?  (Not perfect, but better?)
+
+(g) Explore the connections between the `category` variable and the `hurricane_force` variable using bar plots and `facet_wrap` as in exercise 9.
+
+(h) We can include information from `category`, `status`, and `hurricane_force` in a single plot as follows:
+
+```{r}
+ggplot(data=hfd,aes(y=category)) +
+  geom_bar() +
+  facet_grid(rows = vars(status),cols = vars(hurricane_force))
+```
+
+Spend some time experimenting to make this plot more attractive: better colors, labels, title.
+
+(i) Make some conclusions from your plot in part (h).  A good place to start is with simple statements: when *blah blah* in this category, we tend to see *other blah blah* in this other category.
+
+*Note: We have badly ignored some aspects of the storms data set in producing these graphics.  In particular, the data was collected over time!  This exercise is simply to get some practice creating bar plots.  We will return to this data set in a later homework assignment to address time issues and perform a more complete analysis.*
+

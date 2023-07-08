@@ -1,0 +1,24 @@
+# Data Structures and Functional Programming in R
+
+By the time I enrolled in university studies, I had been coding for several years.  The introductory engineering programming courses were not new ideas, just new languages, and so I probably paid less attention in them than I should have.  But then I took a course that put a strong emphasis on computer science rather than basic coding - the data structures course - and I was hooked.  Coding in that course was (almost!) an afterthought.  The emphases were on designing meaningful ways to represent data to best suit a task, transforming data structures to address new problems, and working with algorithmic ways of traversing those data structures.
+
+In this section, we'll look at some advanced programming concepts as implemented in R.  Some ideas have been in play throughout the course in a limited way, such as vectorized operations.  I'll limit these exercises to concepts that come up in data analytic operations.  As for most advanced concepts, it's important to remember that you'll probably use the basics 95% of the time, and so these techniques are less likely to feel useful ... until you need them.
+
+Throughout this section we'll work with the `purrr` and `tidyr` libraries in the `tidyverse`.
+
+## Reviewing vectorized functions and what they do
+
+## Working with lists
+
+## Attaching functions to lists
+
+## Data frames are lists.  Are lists data frames?
+
+## Example: Applying lists to represent fractions exactly
+
+## Vectorizing functions for lists ... Listizing?
+
+## Listizing to format many columns in a data frame
+
+## Listizing and time series
+

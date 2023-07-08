@@ -1,0 +1,152 @@
+# The Ninth Homework: Linear Models
+
+*Note on phrasing:* When we say plot blah versus blah, we mean `y` versus `x`.  The dependent variable comes before the word "versus".
+
+## Reading lm Output (more Gordon exercises?)
+
+Gordon loaded some data and created a model with the following code:
+
+```{r}
+df <- read.csv('https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/abalone.csv')
+df <- df[-which(df$Sex=="M"),]
+df$Sex <- factor(df$Sex)
+diam <- lm(Shell.weight ~ Diameter,data=df)
+summary(diam)
+```
+
+Describe the model that Gordon created.  Using the model output, address the question of whether this is a good model.
+
+
+## Using lm to Model Quadratic Relationships
+
+
+(a) Load the abalone data set that Gordon used in Exercise 1.  Summarize it, and convert variables to factors where reasonable.
+
+(b) Plot the `Shell.weight` versus the `Diameter`.
+
+```{r,echo=FALSE,eval=FALSE}
+ggplot(data=df,aes(x=Diameter,y=Shell.weight)) +
+  geom_point()
+```
+
+(c) Based on your plot in part (b), it should be apparent that a linear relationship is not quite correct.  Create a linear model for a quadratic relationship of `Shell.weight` versus the `Diameter`.
+
+```{r,echo=FALSE,eval=FALSE}
+mod <- lm(Shell.weight ~ Diameter + I(Diameter^2),data=df)
+summary(mod)
+```
+
+
+(d) Is the quadratic relationship you created in part (c) better than the linear relationship from exercise 1?  Explain.
+
+## Comparing Two Models Created With lm (should add notes here on model comparison)
+
+
+Using the abalone data set, create two different linear models.  Use `Shell.weight` as the response variable in each.  In one, use `Length` as the predictor variable and use a quadratic relationship.  In the other, use `Height` as the predictor variable and use a quadratic relationship.  Compare the two models.
+
+
+## Overfitting with lm (need to tweak this example)
+
+
+Before returning to the abalone data set, let's explore an issue in model creation.
+
+(a) Start by creating a synthetic data set using the following code:
+
+```{r}
+set.seed(12345)
+x <- runif(500,-1,1)
+noise <- rnorm(length(x),mean=0,sd=0.20)
+y <- 1 - x^2 + noise
+syn <- data.frame(x=x,y=y)
+```
+
+(b) Plot `y` versus `x` in the data set you created in part (a).  Answer:
+
+```{r,echo=FALSE}
+library(ggplot2)
+ggplot(data=syn,aes(x=x,y=y)) + geom_point()
+```
+
+(c) Fit a quadratic relationship for `y` versus `x`.  What is the $R^2$ value?  Answer:
+
+```{r,echo=FALSE}
+syn.lm <- lm(y ~ x + I(x^2),data=syn)
+summary(syn.lm)$r.squared
+```
+
+(d) Now fit a cubic relationship for `y` versus `x`.  What is the $R^2$ value, and is it (slightly) better than with the quadratic model?  Answer:
+```{r,echo=FALSE}
+syn.lm <- lm(y ~ x + I(x^2)+I(x^3),data=syn)
+summary(syn.lm)$r.squared
+```
+
+(e) Try fitting higher degree relationships for `y` versus `x` and compare the $R^2$ values.  Do they continue to increase (slightly)?
+
+*Note: One issue that we will sometimes encounter is an optimizer mindset.  When we encounter a simple measurement like r squared, it is tempting to adjust the model to continue to make small gains.  This is usually not a great idea.*
+
+
+## Binary Factors as Predictors
+
+(a) Create the following synthetic data.
+```{r}
+set.seed(12345)
+x <- runif(500,0,10)
+noise <- rnorm(length(x),0,0.2)
+ya <- 10 - x + noise
+noise <- rnorm(length(x),0,0.2)
+yb <- 5 - x + noise
+syn <- data.frame(x=c(x,x),
+                  y=c(ya,yb),
+                  group=c(rep("a",length(x)),
+                          rep("b",length(x))
+                          )
+                  )
+```
+
+(b) Create a scatterplot of the synthetic data.  Color the points by group.  Answer:
+```{r,echo=FALSE}
+ggplot(data=syn,aes(x=x,y=y,col=group)) + geom_point()
+```
+
+(c) The two groups of data seem to have the same slope but different intercepts.  Let's test that by building a model and interpreting the output.  What does the output of the following code tell us about the coefficients of the model for the groups?
+```{r,eval=FALSE}
+syn.model <- lm(y ~ group + x:group,data=syn)
+summary(syn.model)
+```
+
+(d) The following code alters the code used in part (c).
+```{r,eval=FALSE}
+syn.model <- lm(y ~ group + x,data=syn)
+summary(syn.model)
+```
+
+Is the result significantly different than in part (c)?  In what way did the model output differ, and how did that reflect the assumption (in part (d)) that the slopes of the lines are the same?
+
+
+## More Binary Factors as Predictors
+
+
+(a) Create the following synthetic data.
+```{r}
+set.seed(12345)
+x <- runif(500,0,10)
+noise <- rnorm(length(x),0,0.2)
+ya <- 10 - x + noise
+noise <- rnorm(length(x),0,0.2)
+yb <- 10 - 0.5*x + noise
+syn <- data.frame(x=c(x,x),
+                  y=c(ya,yb),
+                  group=c(rep("a",length(x)),
+                          rep("b",length(x))
+                          )
+                  )
+```
+
+(b) Adapt what you did in exercise 6 to create a linear model of this data taking the groups into account.
+
+
+## Summary Exercise - Modeling With lm
+
+
+With those practice exercises, you are ready to create a linear model of a quadratic relationship of `Shell.weight` versus `Diameter` for the abalone data, and make sure your model takes into account the `Sex` variable.  Plot the relationship graphs for both groups.  Discuss what you find.
+

@@ -1,0 +1,289 @@
+# Data Wrangling
+
+This section contains exercises about using the `tidyverse` to carry out a variety of tasks helpful in preparing data for exploration, visualization, and modeling.  You will need to have the `tidyverse` installed on your machine, and you will need to load the tidyverse library when working the problems in this section:
+
+```{r}
+library(tidyverse)
+```
+
+## Pipes with magrittr
+
+The R library `magrittr` implements a system of pipe syntax, and the `tidyverse` builds on this system.
+
+Pipes are a syntax to create chains of operations on data sets.  These chains clearly communicate the individual steps in the process they achieve, they are easy to work with for exploration because they allow for the easy addition of steps in the process, and they are easy to apply to other data sets.
+
+Pipes are a system of functions and syntax.  All of the functions used in the intermediate stages of a piping system must take a data-frame-ish object as the first argument, and return a data-frame-ish object.  The last step in a system of pipes need not follow this rule, and often produces a graphic, table, or carries out some additional operation such as storing a value in a variable.
+
+We've used pipes throughout the earlier exercises, but in an informal sort of way.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% filter(Species == "setosa") %>%
+  filter(Petal.Length > 1.5) %>%
+  count()
+```
+
+(b)  Return to (a).  Write out the steps in the chain of commands, looking up functions in the help system as you go.  What does each link in the chain accomplish?  In particular, does `filter` extract rows (observations) or columns (variables)?
+
+(c) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% select(Petal.Length,Species) %>%
+  summary()
+```
+
+(d) Does `select` extract rows (observations) or columns (variables)?
+
+(e) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  select(contains("Petal")) %>%
+  slice_head(n=10)
+```
+
+Then, write a similar code chunk to extract the columns containing the width measurements.
+
+*Note:* This command can be useful when the number of variables in the data set is large.  However, it relies on naming the variables carefully and meaningfully!
+
+
+(f) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% select(contains("Petal")) %>%
+  mutate(Petal.Area = Petal.Length * Petal.Width) %>%
+  slice_head(n=10)
+```
+
+Then, write a similar code chunk to add two columns to the data set, one the average of the petal and sepal lengths for each flower, and the other the average of the petal and sepal widths for each flower.
+
+(f) What does the `mutate` function do?
+
+(g) Let's put this all together.  Execute the following code chunk and make sure you understand what it does by writing out the steps.
+
+```{r}
+data("iris")
+iris %>% 
+  select(-Petal.Length,-Petal.Width) %>%
+  mutate(Sepal.Area = Sepal.Length * Sepal.Width) %>%
+  filter(Species != "setosa") %>%
+  ggplot(aes(x=Sepal.Area,y=Species,fill=Species)) + 
+  geom_violin()
+```
+
+*Note:*  The `select` step in the pipeline above was not necessary, and was included so that a `select` statement was in the chain.  But *why* was it not necessary?
+
+## Renaming variables
+
+When we import a data set from a file, we are at the mercy of those who have entered the data.  Missing data values, data entry errors, and poor choices in naming variables and factor levels.  At least we can address the third category by renaming!
+
+(a) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  rename(PetalLength = Petal.Length) %>%
+  slice_head(n=5)
+```
+
+Then write a code chunk that rewrites all of the variable names so that they do not include the period.
+
+(b) In many cases, names like `Petal.Length` are created when importing a `.csv` file.  The label at the top of the column contains spaces which are converted to periods on import.  Let's create such a file and then import it back in to see this!
+
+Execute the following code chunk to create a `.csv` file in your current working directory with variable names that have spaces.
+
+```{r}
+df.out <- tibble(`An apple`=1:3,
+           `A banana`=c(1.2,3.2,4.5)) 
+df.out
+df.out %>%
+  write.csv("temp.csv",row.names = FALSE)
+```
+
+Then, execute the following code chunk to read this file back in and display it.
+
+```{r}
+df <- read.csv("temp.csv")
+df
+```
+
+Write a code chunk to rename these variables `Apple` and `Banana`.
+
+(c) Try rerunning the code chunks in part (b) with the `tidyverse` functions `read_csv` and `write_csv` instead.  You should find that spaces do not get converted to periods.
+
+## Summarizing by Group
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+data("iris")
+iris %>%
+  group_by(Species) %>%
+  summarize(n=n(),
+            Mean = mean(Petal.Length),
+            St.Dev = sd(Petal.Length))
+```
+
+(b) Create a summary table for the sepal length of the irises.  The variables should be the minimum `min()` and maximum `max()` sepal lengths and the variance `var()` in the sepal length, all by species.  Answer:
+
+```{r,echo=FALSE}
+iris %>%
+  group_by(Species) %>%
+  summarize(Min=min(Sepal.Length),
+            Max=max(Sepal.Length),
+            Variance=var(Sepal.Length))
+```
+
+(c) Use a single pipeline to create new variables measuring the petal and sepal areas in the irises as length * width, and then compute the mean area of petals and sepals by species.  Answer:
+
+```{r,echo=FALSE}
+iris %>% 
+  mutate(Petal.Area = Petal.Length * Petal.Width,
+         Sepal.Area = Sepal.Length * Sepal.Width) %>%
+  group_by(Species) %>%
+  summarize(Mean.Petal.Area = mean(Petal.Area),
+            Mean.Sepal.Area = mean(Sepal.Area))
+```
+
+## Reordering the rows in a data frame
+
+(a) What are the species in the `iris` data set with the 10 shortest sepal lengths?  Execute the following code chunk to show they are all `setosa`.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  arrange(Sepal.Length) %>%
+  select(Species) %>%
+  slice_head(n=10)
+```
+
+(b) Replace `Sepal.Length` with `desc(Sepal.Length)` in the previous code chunk to sort the data frame in descending order.  Use that to find the species of irises with the top ten longest sepal lengths.
+
+(c) Load the Motor Trends data set on cars, `mtcars`.  Find the five cars with the highest horsepower.
+
+(d) You can take a more direct approach with the `slice_min` and `slice_max` functions. The code chunk below achieves the same objective as the code chunk in (a).
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  slice_min(Sepal.Length,n=10) %>%
+  select(Species)
+```
+
+Rewrite your code chunk in part (c) using the `slice_max` function.
+
+## Finding unique cases
+
+(a) Execute the following code chunk to count the number of unique values of `cyl` in the `mtcars` data set.
+
+```{r,eval=FALSE}
+data("mtcars")
+mtcars %>%
+  rownames_to_column(var="Cars") %>%
+  distinct(cyl) %>% nrow() -> n
+```
+
+*Note:*  If you remove the `rownames_to_column` element from the pipeline you'll see why I included it.  Try it!
+
+(b) Replace `distinct(cyl)` by `distinct(cyl,gear)` in the code chunk in (a) and rerun the code.  What output is produced?
+
+(c) Add an additional `%>% nrow() -> n` to your code chunk in (b).  This will count the number of distinct cases and store that value in the variable `n`.  How many distinct cases are there?
+
+## Joining data sets
+
+We often wish to join data sets from different sources.  The `tidyverse` has database tools for accomplishing this.  In this exercise, you'll build small synthetic data sets and use the database tools to join them together.
+
+(a) Execute the following code chunk to build and display two data sets.
+
+```{r}
+left <- tibble(x=runif(4),y=runif(4),
+                group=c("a","a","a","b"))
+right <- tibble(group=c("a","b","c","d"),z=c(10,5,1,0))
+print(left)
+print(right)
+```
+
+(b) For the data sets defined in (a), think of `left` as the "main" data set.  Data set `right` is a tbale that has some additional information about the groups listed in the variable `group`.  We want to copy that information into each row in `left` corresponding to the group in the row.  The function `left_join` will accomplish this, holding `left` constant and attaching information from `right`.  Execute the following code block to see what happens.  Did it work?
+
+```{r,eval=FALSE}
+left_join(left,right,by="group")
+```
+
+*Note:*  The `right_join` function is analogous to `left_join`.
+
+(c) Go back to (a) and redefine `left` to have an additional `x` value, an additional `y` value, and one extra value in group, `e`.  Then run the `left_join` code chunk in part (b).  What happens?
+
+(d) Execute the following code chunk to build and display two data sets.
+
+```{r}
+left <- tibble(x=runif(4),y=runif(4),
+                group=c("a","b","d","e"))
+right <- tibble(group=c("a","b","c","d"),z=c(10,5,1,0))
+print(left)
+print(right)
+```
+
+Then, execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+inner_join(left,right,by="group")
+```
+
+What rows were omitted and why?
+
+(e)  Rerun the second code chunk in part (d) but replace `inner_join` with `full_join`.  What happens?
+
+(f) A common operation is to join data on observational units to another set of data aggregated by groups of those observational units.  
+
+For example, we might have a set of data on vote counts by reporting precinct in the U.S., and we might have a second set of data gathered at the county level on economic variables such as median income and employment status.  Having an interest in understanding why people vote as they do, we might want to aggregate the first set of data to the county level by summing votes, and then join the two data sets by county.  
+
+In this exercise you'll deal with exactly this sort of problem.
+
+First, let's import a data set.
+
+```{r}
+
+```
+
+
+## Pivoting longer
+An observational unit in a data frame is a collection of keys that uniquely identify the unit.  For example, there is a difference between the observational unit "Barry Allen" and the observational unit "Barry Allen at age 27".
+
+Unfortunately, the keys for the observational unit can be treated as features.  This causes all sorts of confusion, and in particular, can sometimes cause data to be entered in ways that are less amenable to analysis.  Here's an example.
+
+Suppose we have collected height data on children over time.  Here are our records for three children.
+
+```{r}
+children <- c("Barry","Jay","Wally")
+age_5 <- c(42,46,43)
+age_10 <- c(62,67,62)
+age_15 <- c(68,72,67)
+df <- data.frame(Name=children,
+                 age_5=age_5,
+                 age_10=age_10,
+                 age_15=age_15)
+```
+
+In this data set the observational units are children and the data is height changing over time.  But right now, the variable associated with time - age - is trapped in the column names, and is not really part of our dat aset.  We may prefer to have this data in a table with three variables: name, age, and height.  We'll use the `pivot_longer` function.
+
+(a) Execute the following code chunk to see what happens.  Make sure to read the code and check the documentation carefully to understand what is happening at each step.
+
+```{r,eval=FALSE}
+df %>%
+  pivot_longer(cols=2:4,names_to="age",values_to="height") %>%
+  mutate(age=str_split(age,"_") %>% map_chr(.,2)) %>%
+  mutate(age=as.numeric(age))
+```
+
+(b) Use the code chunk in part (a), store the data frame created in the variable `df2`, and then create and display a new data frame computing the mean height and standard deviation in height at each `age` (use `group_by` and `summarize`).  Would this have been easy to do with the original data frame `df`?
+
+(c) Using `df2` as created in (b), summarize the height measurements by `Name`.  Would this have been easy to do with the original data frame `df`?  Would it have been easy to do if there were forty ages in the original data frame rather than three?
+
+(d) Use `pivot_longer` to write all the numeric measurements in the `iris` data set in one column, `measurement`.
+
+*Note:* Pivoting wider is the "inverse" operation to pivoting longer, and is used to change focus on the observational unit.

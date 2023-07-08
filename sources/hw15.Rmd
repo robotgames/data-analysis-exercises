@@ -1,0 +1,23 @@
+# Dates, Times, and Time Series
+
+This section contains exercises about wrangling date/time data using the `lubridate` package in the `tidyverse`.  The `lubridate` package is not considered a core part of the `tidyverse` and is not loaded with `library(tidyverse)`.  For the exercises in this section, you will need to load both the `tidyverse` and `lubridate`.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+## Working with date-times
+
+## Formatting date-times
+
+## Extracting information from date-times
+
+## Timelines
+
+## Timelines: Durations
+
+## Timelines: Intervals
+
+## Timelines and time series data
+

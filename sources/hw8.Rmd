@@ -1,0 +1,138 @@
+# The Eighth Homework: Hypothesis Testing and ANOVA
+
+## Hypothesis Testing - Single Sample Mean
+
+
+Let's imagine that we gather a sample of 50 irises of the setosa species, we measure their petal lengths, and we compute the mean of those petal lengths.  You can find our measurements in the `iris` data set.
+
+(a) Perform a formal test of hypothesis testing the hypothesis that the population mean petal length of setosa irises is 1.6.  Use a two tailed test and a confidence level of 95%. Make sure to state your p-value explicitly.
+
+(b) Use the output of `t.test` to determine which hypothesized values for the population mean petal length will be rejected by a test with confidence level 95% (rejection level 5%).
+
+
+## Hypothesis Testing - Difference in Population Means
+
+
+(a) Make a plot comparing the petal lengths by species in the iris data set.  Are the means for the versicolor and virginica species significantly different, based on your graph?
+
+(b) Use a t-test at the 95% confidence level to test the hypothesis that the mean petal lengths of the versicolor and virginica species are the same.  (Note: unpaired and two-tailed!)
+
+
+## Estimating the Power of a Hypothesis Test (check answer in part a)
+
+Let's suppose you collect the following data (copy this into your RMarkdown document and execute it).
+
+```{r}
+set.seed(1234)
+data <- rgeom(40,prob=1/6)
+```
+
+(a) Estimate the 95% confidence interval on the population mean based on this data.  You can do this with a simulation, but `t.test` may give a faster method.  Answer:
+
+```{r,echo=FALSE}
+test_info <- t.test(data,mu=2)
+test_info$conf.int
+```
+
+(b)  Suppose that the true mean of the population is 4.8. (call this hypothesis H1.)  What is the power of the test in rejecting the null hypothesis H0: population mean is 3.0, at a rejection level of 5%, with a two-tailed test?  Answer:
+
+```{r,echo=FALSE}
+error <- sd(data)/sqrt(length(data))
+tickmarks <- qnorm(c(0.025,0.975),
+                   mean=3.0,sd=error)
+1 - (pnorm(tickmarks[2],mean=4.8,sd=error) - 
+  pnorm(tickmarks[1],mean=4.8,sd=error) )
+  
+```
+
+(c) Suppose that the true mean of the population is 3.8. (call this hypothesis H1.)  What is the power of the test in rejecting the null hypothesis H0: population mean is 3.0, at a rejection level of 5%, with a two-tailed test?  Answer:
+
+
+```{r,echo=FALSE}
+error <- sd(data)/sqrt(length(data))
+tickmarks <- qnorm(c(0.025,0.975),
+                   mean=3.0,sd=error)
+1 - (pnorm(tickmarks[2],mean=3.8,sd=error) - 
+  pnorm(tickmarks[1],mean=3.8,sd=error) )
+```
+
+(d) Why the difference in power?  Discuss.
+
+
+## ANOVA and Tukey's Honest Significant Difference
+
+Load the `ToothGrowth` data set (in R).  
+
+(a) Examine the `dose` variable.  Should it be a numeric or a factor?  Why?
+
+(b) Use an ANOVA test to determine whether there is a difference among the groups defined by different dose levels.  Answer: Yes, with a p-value much less than 0.
+```{r,echo=FALSE,eval=FALSE}
+data("ToothGrowth")
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+my.aov <- aov(len ~ dose, data=ToothGrowth)
+summary(my.aov)
+```
+
+(c) Use `TukeyHSD` to analyze the differences in the pairs of groups in this data set.
+
+## Exploring ANOVA and TukeyHSD
+
+Let's create some synthetic data to see how ANOVA performs.
+
+(a) Use the following code to create synthetic data.  Describe what this is doing.
+
+```{r}
+set.seed(12345)
+adata <- rnorm(15,mean=100,sd=10)
+bdata <- rnorm(30, mean=102,sd=10)
+cdata <- rnorm(50,mean=110,sd=8)
+the_labels <- c(rep("a",length(adata)),
+                rep("b",length(bdata)),
+                rep("c",length(cdata)))
+df <- data.frame(x=c(adata,bdata,cdata),
+                 y=factor(the_labels))
+```
+
+(b) Perform an ANOVA test (with a 5% rejection level) on this synthetic data to determine whether there is a significant difference among the means of the three groups.  Answer:  There is, and the summary of the ANOVA output is...
+```{r,echo=FALSE}
+my.aov <- aov(x ~ y,data=df)
+summary(my.aov)
+```
+
+(c) Use `TukeyHSD` (at a 5% rejection level) to test whether there are differences in the means of pairs of groups.  Answer: There are significant differences between a and c and between b and c, but not between a and b, and here is the output...
+```{r,echo=FALSE}
+TukeyHSD(my.aov)
+```
+
+(d) Return to part (a).  Rebuild your data set in exactly the same way (using the same `set.seed(12345)` statement), except use a standard deviation of 30 for group c.  Perform a `t.test` to compare groups a and c.  Does the `t.test` find a significant difference in their means?  Answer: Yes, and here is the output...
+
+```{r,echo=FALSE}
+set.seed(12345)
+adata <- rnorm(15,mean=100,sd=10)
+bdata <- rnorm(30, mean=102,sd=10)
+cdata <- rnorm(50,mean=110,sd=30)
+the_labels <- c(rep("a",length(adata)),
+                rep("b",length(bdata)),
+                rep("c",length(cdata)))
+df <- data.frame(x=c(adata,bdata,cdata),
+                 y=factor(the_labels))
+t.test(adata,cdata)
+```
+
+(e) Perform your ANOVA and `TukeyHSD` analyses again, this time for the data set you constructed in part (d).  What happens?  Is this difficult to interpret?  Does it agree with your `t.test` results in part (d)?  Answer:  Here's what happens!  ANOVA finds that there is a significant difference among the sample means of the groups at the 5% level.  However, TukeyHSD finds no significant difference between any pairs of groups at the 5% level.  As it turns out, individual t.test applications to pairs of groups can inflate the size of the difference between two groups when compared to the larger context of all of the data.  Tukey proposed a different way of measuring the difference between groups in a larger data set, which he called his Honest Significant Difference, or HSD...and that's really where the name TukeyHSD comes from!  Google "Tukey Honest Significant Difference" to learn more!
+
+```{r,echo=FALSE}
+set.seed(12345)
+adata <- rnorm(15,mean=100,sd=10)
+bdata <- rnorm(30, mean=102,sd=10)
+cdata <- rnorm(50,mean=110,sd=30)
+the_labels <- c(rep("a",length(adata)),
+                rep("b",length(bdata)),
+                rep("c",length(cdata)))
+df <- data.frame(x=c(adata,bdata,cdata),
+                 y=factor(the_labels))
+my.aov <- aov(x ~ y,data=df)
+summary(my.aov)
+TukeyHSD(my.aov)
+```
+

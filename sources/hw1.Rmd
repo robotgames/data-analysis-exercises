@@ -1,0 +1,646 @@
+# The First Homework: An Introduction to Data Analysis
+
+## The First and Last Miles
+
+There is an aphorism to the effect that the first and last miles of any data analysis journey is dominated by visualizations.  That's true, or close enough to it.  The first part of a data analytics project - after the data is available to you! - is to explore the data set through summaries, tables, and lots and lots of visualizations.  The last part is to communicate your conclusions and insights to an audience, and this usually involves creating compelling and informative visualizations.
+
+But to be a little more precise, first you have to *get* that data, then analyze it.  In this exercise we'll assume you have access to the data as a `.csv` file (a comma-separated value file), which means that our task is simply to read the data into RStudio.
+
+```{r}
+df <- read.csv()
+```
+
+
+
+## From Math Expressions to R
+
+Generally, the syntax for mathematical expressions in R works as in most spreadsheets.
+
+Evaluate each of the following mathematical expressions with a chunk of R code.  For example, if the expression is $3e^{2*1.45-1}$ you would write the chunk of R code:
+
+```{r}
+3*exp(2*1.45-1)
+```
+
+and evaluate to arrive at your answer.  *You may have to search to discover how to write some functions in R.  This is an opportunity to practice searching for technical details about your coding language, an invaluable skill.*
+
+(a) $3\cdot 5^2-2.4\cdot 10^{-1}$  Answer:
+
+```{r,echo=FALSE}
+3*5^2-2.4*10^(-1)
+```
+
+
+(b) $\displaystyle \sqrt{14-10\cdot 0.321}$  Answer:
+
+```{r,echo=FALSE}
+sqrt(14-10*0.321)
+```
+
+
+(c) $\displaystyle \sqrt{\frac{14+5.2}{2.1-0.9}}$  Answer:
+
+```{r,echo=FALSE}
+sqrt( (14+5.2)/(2.1-0.9) )
+```
+
+
+(d) $\displaystyle 0.2\cdot e^{2.4+0.2^2}$ Answer:
+
+```{r}
+0.2*exp(2.4+0.2^2)
+```
+
+
+(e) $\displaystyle \ln(0.2)-\ln(\sqrt{3})$  Answer:
+
+```{r, echo=FALSE}
+log(0.2) - log(sqrt(3))
+```
+
+## Rounding Numbers in R
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+round(1.234)
+round(1.234,1)
+round(1.234,2)
+```
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+floor(1.234)
+ceiling(1.234)
+floor(-1.234)
+ceiling(-1.234)
+```
+
+## Scientific Notation in R
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+7e3
+```
+
+(b) Multiply `2.1 x 10^8` and `3.4 x 10^7`.  Answer:
+
+```{r,echo=FALSE}
+(2.1e8) * (3.4e7)
+```
+
+## Variables in R
+
+(a) Use an R code chunk to store 4 in the variable $x$ and -2 in the variable $y$.
+```{r,echo=FALSE}
+x <- 4
+y <- -2
+```
+
+(b) Now use an R code chunk to evaluate $2x^2+3xy-5y^2$.  Answer:
+```{r,echo=FALSE}
+2*x^2+3*x*y-5*y^2
+```
+
+(c) Now, write a single code chunk that does (a), then (b).  Evaluate to make sure you have a correct working chunk.  Then in your code chunk, change the 4 to a 0 and the -2 to a 3 and re-evaluate.  Answer:
+```{r,echo=FALSE}
+x <- 0
+y <- 3
+2*x^2+3*x*y-5*y^2
+```
+
+(d) Based on your work in (c), what is the benefit of storing data in variables rather than typing data in by hand?
+## Characters (Strings) in R
+
+(a) Execute the following code block to define strings and store them in `a` and `b`.  Notice the extra space at the end of the second string.
+
+```{r}
+a <- "apple"
+b <- 'banana '
+```
+
+*Note:* You may use double or single quote to surround a string in R.  Double quotes are my own preference, because single quotes are easily mistaken for the back tick (next to the 1 key on most keyboards).
+
+(b)  Use the `nchar` function to count the letters in `a`.  Answer:
+
+```{r,echo=FALSE}
+nchar(a)
+```
+
+(c) Use the `trimws` function to trim the extra whitespace (spaces, new lines, etc.) from `b` and store the result in `b`, then use `nchar` to count the characters in the new `b`.  Answer:
+
+```{r,echo=FALSE}
+b <- trimws(b)
+nchar(b)
+```
+
+(d) Join the two strings `a` and `b` with the `paste` function, using `,` as a separator with `sep`.  Answer:
+
+```{r}
+paste(a,b,sep=",")
+```
+
+(e) Convert the number `1204.73` to a string and store it in `x` by executing the following code chunk.
+
+```{r}
+x <- as.character(1204.73)
+```
+
+(f) Create a string expressing a distance with units, meters, by pasting together the string `x` from (e) with "meters".  Answer:
+
+```{r,echo=FALSE}
+paste(x,"meters")
+```
+
+
+## Logicals in R
+
+A logical data type is usually the result of evaluating an expression as true or false.  In R, these are written `TRUE` and `FALSE`.
+
+(a) Execute the following code chunk to evaluate the truth or falsity of the inequality.
+
+```{r,eval=FALSE}
+sqrt(1234) > 36
+```
+(b) The results of evaluating logical statements can be stored in variables.  Execute the following code chunk to store logical results in `a` and `b`.
+
+```{r}
+a <- 3.2^2 < 10
+b <- 7.8*15 > 10^2
+```
+
+*Note:*  You should be able to see the results in the environment pane in RStudio.
+
+(c) Logical statements can be connected by the "and", `&`, and "or", `|`, logical connectives.  Evaluate the following code chunk to see what happens.
+
+```{r}
+a <- 3 < 5
+b <- 7 > 10
+a & b
+a | b
+```
+
+(d) The unary "not" operator is denoted `!` in R.  Execute the following code chunk to see what happens.
+
+```{r}
+!(3<5)
+```
+
+(e) We may encounter situations in which we are given a numeric value `x` and we wish to evaluate whether it meets every one of a set of given constraints.  Write a code chunk with `x <- ` a value at the top, and that evaluates whether `x` is less than 10, whether the square of `x` is greater than 3.1, and whether the cube of `x` is less than 70.
+
+## Data Types in R
+
+State the data type of each of the following expressions in R.  You can use the `class` function, as in
+
+```{r}
+class(1.2)
+```
+
+and
+
+```{r}
+class(2.3>0)
+```
+
+*Note:* If you need finer-grained understanding of the internal representation of data, you can use the `typeof` function instead of class.  Generally, `class` will tell us more about data-oriented things and `typeof` will tell us how the data is represented in our computer's memory.
+
+(a) `7.4^2`
+
+(b) `"December 2, 1921"`
+
+(c) `"greed^2"`
+
+(d) `32.1-10 > 4.0`
+
+(e) The class of an expression can be unexpected, until you understand an important fact about R's behavior: when a logical is used where a numeric *should* be used, the logical is often cast to 1 when `True` and 0 when `False`.  Here's an experiment to see this in action.  
+
+Compute `exp(32.1-10 > 4.0)` in an R code chunk and see what happens!  Compare to $e^1$; did you get the same result?  Now try to evaluate `exp(3 > 5)`.  What happens?  And in particular, what is the class of `exp(3 > 5)`?
+
+
+## Different Assignment Operators
+
+There are usually a number of different ways to "say" something in R, as in most languages.  Instead of asking "how do I say this?", ask "what are the different ways I can say this, and which is best for this context?"
+
+There are a number of different notations for assigning a value to a variable.  In this exercise we'll look at several.
+
+(a) Execute the code chunk and make sure that `2` is printed.  This verifies that `2` is stored in `a`.
+
+```{r}
+a <- 2
+a
+```
+
+(b) Now let's store `3` in `a` using a different notation.  Execute the following code chunk!
+
+```{r}
+a = 3
+a
+```
+
+(c) Next, store `4` in `a`.  Execute the following code chunk.
+
+```{r}
+4 -> a
+a
+```
+
+(d) This is getting a bit ridiculous, but ... let's store `5` in `a`, and then `6` in `a`.  Execute the following code chunk.
+
+```{r}
+a <<- 5
+a
+6 ->> a
+a
+```
+
+(e) While the `=` sign is most familiar as an assignment operator to coders coming from other languages, it is not the best assignment operator to use in R.  Why not?  First, it is easy to confuse the `=` assignment operator with the `==` logical test.  Second, the arrows are a lot more flexible.
+
+But why do we have single-headed arrows and double-headed arrows?  Execute the following two code chunks.  We'll discuss functions in more detail later.
+
+```{r}
+a <- 1
+f <- function() {
+  a <- 2
+  print(a)
+}
+f()
+a
+```
+*Note:* calling the function `f` assigns `2` to `a` inside the function's space, or *scope*, and then prints whatever is in `a`.  But this does not affect the values stored in variables outside of the scope of the function.  So, when we execute `a` after `f()`, you should see `1` printed, because the value of `a` outside of `f` did not change.
+
+Same code chunk except with a double arrow head inside the function scope!
+```{r}
+a <- 1
+f <- function() {
+  a <<- 2
+  print(a)
+}
+f()
+a
+```
+
+*Note:*  This time, executing the function `f` does result in a change to the variable `a` outside of the function's scope; that's the effect of the double arrow head!
+
+Generally speaking, you should not change the value of a variable outside the scope of the function without an exceptionally good and well-articulated reason.
+
+## Vectors - Not the Physics Kind
+
+(a) Use an R code chunk to write the vector `c(3,2,5,0)` and store it in the variable `x`.
+```{r,echo=FALSE}
+x <- c(3,2,5,0)
+```
+
+
+(b) Evaluate `x^2` and `exp(x)`.  What happens?  Numerical answer for $x^2$:
+```{r,echo=FALSE}
+x^2
+```
+
+
+(c) Use an R code chunk to write the vector `c(-2,-1,-4,1)` and store it in the variable `y`.  Then evaluate `x+y`.  What happens?  Numerical answer:
+```{r,echo=FALSE}
+y <- c(-2,-1,-4,1)
+x+y
+```
+
+(d) Take a moment and write in plain language how R seems to handle arithmetic with vectors.
+
+(e) Vectors may be non-numerical as well.  Use an R code chunk to store the vector `c("apple","banana","cat")` in the variable `L`.
+
+```{r,echo=FALSE}
+L <- c("apple","banana","cat")
+```
+
+(f) Elements of vectors must have the same type of data throughout.  Execute the following chunk of code and see whether you understand what R is doing to make sure that all the data in the vector `a` is the same class.
+
+```{r}
+a <- c(1.2,"cat",TRUE)
+a
+```
+
+(g) You may use `c()` to concatenate vectors into a single vector.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(1,3,5)
+b <- c(2,4,6)
+together <- c(a,b)
+together
+```
+
+What would have happened if we replaced `c(a,b)` by `c(b,a)`?
+
+## R Commands for Building Vectors from Patterns
+
+(a) You can create a *range* of values using `:`.  Execute the following chunk of code to see what happens.
+
+```{r}
+a <- 1:5
+a
+b <- -4:7
+b
+```
+
+(b) You can create a vector of a pattern of values using the `seq` command.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- seq(1,13,by=2)
+a
+b <- seq(-1,1,length.out=20)
+b
+```
+
+(c) In many cases you can use vectorized arithmetic to create sequences quickly.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- seq(3,24,by=3)
+b <- 3*(1:8)
+a
+b
+```
+
+(d) You can create a vector with one element repeated many times using `rep`.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- rep("red",10)
+a
+```
+
+*Note:* the `rep` command can be useful for labeling data in data frames.
+
+## Recycling Vectors
+
+R exhibits a peculiar behavior with respect to arithmetic of vectors, called *recycling*.  It is occasionally useful in practice.  More often, it causes code to execute in ways that seem strange unless you are aware of this behavior.
+
+(a) Use an R code chunk to store the vector `1:4` in `a` and `5:8` in `b`.
+
+```{r,echo=FALSE}
+a <- 1:4
+b <- 5:8
+```
+
+(b) Now execute the following code chunk to see what happens when we multiply `a` and `b`.
+
+```{r}
+a * b
+```
+
+(c) Next, store the vector `c(-1,1)` in `b` and compute `a * b`.  Answer:
+
+```{r}
+b <- c(-1,1)
+a * b
+```
+
+*Note:*  The behavior we are seeing here is called *recycling* in R.  When executing `a * b`, the first two values are multiplied, then the second two, and so on.  If one vector "runs out" of values, then R simply returns to the beginning of that vector for the next value and cycles through again.  This continues until all the values in the longer vector have been used.
+
+(d) Execute the following code chunk to see what happens.
+
+```{r}
+1:5 * c(-1,1)
+```
+
+*Note:*  R provides a warning when the shorter vector is not a multiple of the longer vector, but it uses the recycling behavior anyway.
+
+## Factors
+
+A special - and incredibly important! - type of vector is a *factor*, also known as a categorical variable.  A factor is a vector whose entries represent categories to which a data entry belongs.  The categories in a factor are known as its *levels*.  A great way to think about factors is as responses to multiple choice questions.
+
+Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("A",10),rep("B",5),"C","C")
+b <- factor(a)
+a
+b
+```
+
+*Note:* The factor `b` prints the levels as well as the entries.
+
+## Functions Measuring Properties of Vectors 
+
+Some functions in R take vectors as inputs and produce single numbers as outputs.  In this exercise I'd like you to look up the documentation for the `sum` and `length` functions in R.  Then, for the vector `x` from Exercise 4, use R code chunks to compute the sum of `x`, the length of `x`, and the mean of `x`.  Answer for mean of $x$:
+```{r,echo=FALSE}
+mean(x)
+```
+
+
+## Extracting Elements From Vectors 
+
+
+(a) Write and evaluate the following R code chunk.  Make sure you understand what it is doing!
+```{r}
+x <- 3*(1:10)
+```
+
+(b) Write a code chunk that extracts the first three elements of `x`.
+
+(c) Write a code chunk that extracts the last three elements of `x`.  *Hint: `tail()` function.*
+
+(d) Write a code chunk that extracts the 1st, 5th, and 7th elements of `x` in one vector.  Answer:
+```{r,echo=FALSE}
+x[c(1,5,7)]
+```
+
+
+(e) Write a code chunk that attempts to extract the 2nd, 4th, and 13th elements of `x` in one vector.  What goes wrong, and why?
+
+
+
+
+
+## Extracting Elements With Logicals
+
+Use `x <- 1:1000` to create a vector and store it in `x`.  Then,
+```{r,echo=FALSE}
+x <- 1:1000
+```
+
+
+(a) Evaluate `x[x^2<10]` in a code chunk.  The output should be much shorter than the original vector `x`.
+
+(b) To figure out what the code in (a) is doing, let's break it down.  The code splits naturally into two pieces.  The *filter* is the logical vector $x^2<10$ and the data vector is $x$.  How many of the filter's entries are true?  Does this help explain why `x[x^2<10]` has so few entries?
+
+(c) Find all of the values in the vector `x` that satisfy the inequality $|x-300|\leq 25$.  Absolute value is a function in R, `abs`.  Answer:
+```{r,echo=FALSE}
+x[ abs(x-300)<= 25 ]
+```
+
+
+*Note: Filtering with logical vectors is a tremendously important operation.  We'll see it come up again in this homework and throughout the course.*
+
+
+## Positions or Values? 
+
+In some cases, we don't need to know the *values* in a vector that satisfy some filter, but we need to know their *positions* in the vector.  Note that the position of a value in a vector is often called its *index*.
+
+Use `x <- 2*(1:10)` to create a vector and store it in `x`.  Make sure you know what the vector `x` contains!  Then,
+```{r,echo=FALSE}
+x <- 2*(1:10)
+```
+
+
+(a) Evaluate `which(x^2<75)` in an R code chunk.  Does this return what you think it ought to?  Answer:
+```{r,echo=FALSE}
+which(x^2<75)
+```
+
+
+(b) Which indices in `x` have data satisfying the inequality $|x-4|<3$?  Use an R code chunk and the `which` function to determine your answer.  *Remember, the indices are the positions in the vector, not the values.  So your answer here should look like "the third and fifth entries" or something along those lines.*  Answer:
+```{r,echo=FALSE}
+which( abs(x-4) < 3 )
+```
+
+
+## Extracting With Conditions From Corresponding Vectors
+
+Suppose we have collected data about some children.  For each child, we have measured their age in years and their height in inches.  We have stored this data in two corresponding vectors,
+
+```{r}
+age <- c(10,8,5,11,10,6,5)
+height <- c(52,48,41,60,54,43,43)
+```
+
+By *corresponding*, I mean that the first entry in each vector refers to child 1's measurements, the second entry in each vector refers to child 2's measurements, and so on.
+
+Write these vectors in an R code chunk.  Then,
+
+(a) Your teammate executes the expression `age[height>62]`.  What question are they trying to answer?  How many entries does the result have?
+
+(b) Write an R code chunk to find the ages of all children taller than 50 inches.  Answer:
+```{r,echo=FALSE}
+age[ height > 50 ]
+```
+
+
+(c) Write an R code chunk to find the heights of all children under 10.  Answer:
+```{r,echo=FALSE}
+height[ age < 10 ]
+```
+
+
+(d) Let's return to your teammate's code, `age[height>62]`.  How does the code `age[which(height>62)]` compare?  Does it produce the same result?
+
+(e) Hmm.  That last exercise raises a question of why we need the `which` function in R.  Let's compare two ways to filter for children with heights greater than 62 inches.  Evaluate the expressions `height>62` and `which(height>62)`.  Clearly one is shorter to type, but what are the other differences?  In particular, would one be easier to store in a file than the other?
+
+(f) The `which` function has some related functions, `which.max` and `which.min`.  Read the R documentation for these functions, and then use them to find the indices of the tallest and shortest children in the data.  Answer for tallest:
+```{r,echo = FALSE}
+which.max(height)
+```
+
+
+(g) Use your results from part (f) to find the ages of the tallest and shortest children in the data set.  Answer, age of tallest:
+
+```{r,echo=FALSE}
+age[which.max(height)]
+```
+
+
+*Note:* We could have answered any of these questions by a simple inspection of the data set, because it has very few records.  In order to learn the software, make sure that you are always performing your work as if the data has millions of records.  Do your results rely at any point on a visual inspection?  Can you work around that?  These are questions we will ask ourselves throughout the course.
+
+## Re-leveling Factors
+
+Regardless of the method used to subset, factor variables sometimes pose a problem.
+
+(a)  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("A","A","B","B","C"))
+b <- a[1:4]
+b
+```
+
+(b) In part (a), what are the distinct values in `b`?  What does R state as the levels of `b`?
+
+(c) In some applications we will need to retain the "memory" of the levels from which the subset was taken.  That is, we might need to know that `b` was drawn from a factor with levels `levels(b)`.  This is the reason that R preserves this information by default.
+
+But, in many applications, we simply need to know the levels of `b`.  We can re-level `b` as in the following code chunk.
+
+```{r}
+b <- factor(b)
+b
+```
+
+(d) In some cases we might need to specify an order on the levels of the factors.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("A","A","B","B","C"),
+            levels=c("A","B","C"),
+            ordered=TRUE)
+a
+a <- factor(c("A","A","B","B","C"),
+            levels=c("B","A","C"),
+            ordered=TRUE)
+a
+```
+
+*Note:*  Ordering levels in a factor can be useful in a variety of situations, such as ordering the months in a year or the days in a week.  Ordering levels helps other functions like plotters create structures that are aware of the intended order.
+
+(e) In some cases we may want to rename the levels of a factor.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("Level A1","Level B1","Level C1"))
+a
+levels(a) <- c("A","B","C")
+a
+```
+
+
+## Tables
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("a",10),rep("b",30),rep("c",5))
+table(a)
+```
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("a",10),rep("b",30),rep("c",5))
+b <- c(rep("a",20),rep("b",5),rep("c",20))
+table(a,b)
+```
+
+## Lists
+
+Vectors in R must contain data that is all of the same class.  Knowing that all of the data in a container is the same class is useful for coders, who can then write functions assuming the data is all numerical, or all character, or all logical.  But, sometimes we will need containers that are able to hold data of different classes.  In R, this is the *list*.
+
+(a) Execute the following code chunk to build a list `a`.
+
+```{r}
+a <- list("apple",1204.73,FALSE)
+```
+
+(b)  Extract the second element of `a` using `a[[2]]`.
+
+(c) Execute the following code chunk to build a named list `b`.
+
+```{r}
+b <- list(dog="Fido",size=1.2,color="reddish")
+```
+
+(d) Execute the following code chunk to see what happens.
+
+```{r}
+b[[1]]
+b[["size"]]
+b$color
+```
+
+*Note:* This gives a few different ways of accessing the elements of a list.  The last method using `$` will be used often when we move to *data frames*, a special kind of list.
+
+(e)  Execute the following code chunk to see what happens.  The object returned is a list.
+
+```{r,eval=FALSE}
+b[1:2]
+```
+
+(f) Execute the following code chunk to see what happens.
+
+```{r}
+b[2:3][[1]]
+```
+

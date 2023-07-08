@@ -1,0 +1,72 @@
+---
+title: "Forty Days and Nights of Data Exercises"
+author: "Dr. C. E. Brown"
+date: "2023-07-07"
+site: bookdown::bookdown_site
+documentclass: book
+output:
+  bookdown::pdf_book: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval=TRUE,
+                      message=FALSE,
+                      warning=FALSE,
+                      comment = '    ',
+                      class.source="bg.success",
+                      class.output="bg.warning")
+# The class.source and class.output
+# are options for shading with html output
+```
+
+\newpage
+
+## Preface, or, What is This Thing?
+
+This thing is a collection of references and exercises for the aspiring data analyst, or scientist, or whatever we are calling them nowadays.  I hesitate to call it a book, as that hints at aspirations far beyond what you read.
+
+Who are you?
+
+* You're a student.  No, not someone enrolled at an institution of higher education, though you might be.  I mean that you're interested in studying.
+* You might be in business, but you might not.
+* You're on a budget.  You have limited financial resources and your computing resources are limited to your laptop.  All of the exercises in this thing can be run on a common laptop with an internet connection and using freely available tools.
+* You like to figure things out and make connections.  When you run into a "Huh, that's weird!" situation, you look at it as an opportunity.
+* You're aware that there is data all over the place, and you want to see what it can tell you.
+
+Where did this thing come from?  I've been teaching an undergraduate course in data analysis for over a decade.  Most of these exercises were developed in one of two ways:
+
+* I worked with a messy data set, completed my analysis, and then broke down the steps into sequences of exercises.  I scattered these throughout the homework sets so that each set builds on the earlier ones.
+* I worked with a student with a messy understanding.  I created some data that isolated and clarified some ideas for that student, then found that those clarifications resonated with others.  This is where most of the synthetic data exercises came from.
+
+How is this thing organized?  The first dozen chapters are the twelve homework sets for the class I teach, expanded somewhat, and in the order I present them.  Students have roughly a week to work through each homework set, and there are a few additional weeks in the semester given over to work on course projects.  The next few chapters are expansions on what I feel are both important tools for the data scientist and trouble spots for the learning practitioner.  The next few chapters after that are some longer case studies, taken step by step.  And the last two chapters include references to sources of data and to reference works.
+
+Who am I?  I'm a mathematician by academic training and I have an inordinate fondness for differential equations and stochastic processes, but don't let that scare you.  I'm a data scientist in practice.  I'm still at heart a punk kid and D&D player from the 80's and 90's, with all of the DIY attitude that entails.  I've been coding since 1982, but I'm not nostalgic for the old days and I'm happy with modern fast computers and slick, easier-to-use languages.
+
+## How Do I Use This Thing in my Class?
+
+I assign one homework per week.  Thirteen homeworks plus half a dozen class periods for time to work on the two course projects fills up the fifteen week semester.  
+
+
+
+Other notes:
+
+* Depending on the class and their familiarity or lack thereof with coding, I might expand the time spent on the first homework set to two weeks and skip the thirteenth homework.
+* Homework 13 is entirely optional.  While the subject material is fascinating and raises interesting questions both mathematical and philosophical, unsupervised learning is quite different from the earlier course material.
+* Hypothesis testing does not comprise a large component of the course; this was not intended to be an introductory statistics course.  I don't recommend omitting the material in homework 8 entirely, as many metrics for model performance are couched in the language of p-values.  However, the exercises on power estimation and ANOVA can be omitted if time is short.
+* I record video captures of myself working through various R/RStudio tasks.  This is difficult to capture in a static book form and so easy as a video!    
+
+```{r child="sources/hw1.Rmd"}
+
+```
+
+
+```{r,echo=FALSE}
+the_hw_names <- sapply(1:22,function(z) paste0("sources/hw",z,".Rmd"))
+```
+
+
+<!-- ```{r, child=the_hw_names,echo=FALSE} -->
+
+<!-- ``` -->
+

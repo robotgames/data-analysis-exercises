@@ -1,0 +1,298 @@
+# The Second Homework: Functions in R
+
+## Substituting Values into R Functions
+
+When substituting values into R functions, you can substitute the value or a variable the value has been stored in.  Substituting a variable is nearly always better, to avoid user entry error.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+exp(3.123456789)
+```
+
+(b)  Execute the following code chunk to see what happens.
+
+```{r}
+a <- 1.23456789
+exp(a)
+```
+
+(c) Your buddy Gordon is a bit lazy (though he prefers the term "efficient").  When working with R, Gordon performs a calculation, sees the 10 digit output on the screen, and then types that ten digit output directly into the exponential function.  What are the possible errors that Gordon's choice could cause?
+
+*Note:* In addition to the possibility of causing errors, direct copying of values from screen into code or functions is not seen by readers of your code.  You break the documentation chain when you do this; the reader cannot determine what was done as the value passed out of the screen, into your brain, and then into code in some other part of your analysis.  Storing that value in a well-named variable both avoids error and documents your process.
+
+## Math Functions as R Functions
+
+Write an R code chunk defining each of the following mathematical functions as a function in R.  You should test each one on an input or two to make sure it works, and demonstrate your tests.  For example, given the function $f(x)=|2x-3|$,  we can write the code
+```{r}
+f <- function(x) {
+  return(abs(2*x-3))
+}
+f(5)
+f(0)
+```
+
+(a) $f(x)=3+2(x-1)+7(x-1)^2$  
+
+Test on input $2$:
+```{r,echo=FALSE}
+f <- function(x)  {
+  return(3+2*(x-1)+7*(x-1)^2)
+}
+```
+```{r}
+f(2)
+```
+
+
+(b) $g(x)=2e^{0.1x}$  *Hint: Use the `exp()` function in R.*
+
+(c) $h(t)=2\ln(t-5)$  *Hint: Use the `log()` function in R.*
+
+
+## Functions and the If Control
+
+The `if` statement in R causes a branching in code.  Normally execution would prcess line 1, then line 2, and so forth.  The `if` statement gives a few options for a line or chunk, and it asks for conditions for using one option rather than another.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+a <- 3
+if (a < 5) {
+  a <- a^2
+}
+a
+```
+
+*Note:* Here, only one option has been give for the middle line.  However, it is wrapped in an `if` statement.  The default other option is to do nothing.  Try changing the value stored in `a` to 7 and re-running the code chunk to see what happens.
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+a <- 3
+if (a > 5) {
+  a <- a^2
+} else {
+  a <- sqrt(a)
+}
+a
+```
+
+*Note:* The placement of the `else` statement is important in R.  If you place the `else` on the beginning of the next line down you will encounter an error.
+
+(c) You may want several branches.  Execute the following to see what happens.
+
+```{r}
+a <- 3
+if (a > 5) {
+  a <- 0
+} else if (a < 0) {
+  a <- -1
+} else {
+  a <- 1
+}
+a
+```
+
+(d) `if` control statements pair nicely with functions.  Execute the following code chunk to see what happens.
+
+```{r}
+f <- function(x) {
+  r <- 0
+  if (x>5) {
+    r <- 1
+  }
+  return(r)
+}
+f(-1)
+f(8)
+```
+
+*Note:*  There are several ways to write this function.  I gave a default value of 0 and stored it in `r`, and then asked if a certain exception held and if it did, then change `r`.  The return is `r` at the end.
+
+(e) Write an R code chunk defining the following function and test it on the inputs $-2$, $0.5$, and $4$.  Use the `if` control statement.  
+$$f(x)=\left\{\begin{array}{ll}0&x<0\\ 1-x^2&0\leq x\leq 1\\ x-1&x>1\end{array}\right. $$
+Output of tests:
+```{r,echo=FALSE}
+f <- function(x) {
+  r <- 0
+  if ( (x>= 0) & (x<= 1) ) {
+    r <- 1-x^2
+  }
+  if ( x>1) {
+    r <- x-1
+  }
+  return(r)
+}
+```
+```{r}
+f(-2)
+f(0.5)
+f(4)
+```
+
+
+## Vectorizing Functions
+
+One reason to write functions is to easily reuse the code performed by the function.  And when we reuse that code, we would like it to be the case that we only have to alter the code once, and it will update in all locations where it is used.  Functions do that!
+
+When we reuse code, we often want to apply it repeatedly to all of the elements of a vector.  Functions with this behavior are called *vectorized*.  There is a logical problem with this, though.  When `x` is a vector and `f` is a function, should writing `f(x)` apply the function to the vector `x` or apply `f` repeatedly to each individual element in `x`?  As an example, when we compute `length(1:4)`, should the computation return `4` (the length of the vector) or `c(1,1,1,1)` (the length of each of the elements)?  R uses the default behavior that the function applies to the vector.  We can change that default behavior in two ways: define `f` using functions that are already vectorized, or explicitly tell R that `f` should be vectorized.
+
+(a) Execute the followign code chunk to see what happens.  Is `f` vectorized?
+
+```{r}
+a <- 1:10
+f <- function(x) {
+  x^2
+}
+f(a)
+```
+
+(b) Execute the following code chunk to see what happens (it should produce an error).  Is `f` vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+f(a)
+```
+
+(c) Modify the previous code chunk as follows and execute it.  Is `f` vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+f <- Vectorize(f)
+f(a)
+```
+
+*Note:* Note the capitalization of the `Vectorize` command.
+
+(d) Modify the code chunk in (b) in the following way and execute it.  Does it produce output as if `f` is vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+sapply(a,f,USE.NAMES = FALSE)
+```
+
+## Formatting With Vectorized Functions
+
+In data analysis, we may want to perform a formatting operation on every element in a vector of data.  
+
+(a) Use `x <- runif(1000)^2` to create a data set.  Compute its mean and store that in the variable `mu`; use the `mean` function. 
+
+(b) Define a function with one input.  Your function should return the square root of the input if the input is larger than mu, and it should return 0 otherwise.
+
+(c) Vectorize your function from (b) using `Vectorize`.
+
+(d) Apply your vectorized function to the vector `x` and store the resulting vector in `y`.
+
+(e) How many entries in `y` are greater than $0.5$?  *Hint: Use an appropriate filter and the `length` function.*
+
+## Standardizing Data
+
+Suppose that we have some numerical data, and we wish to "compress" it so that all values have been transformed to lie in the interval $0\leq x\leq 1$.  We can use the function$$f(x)=\frac{x-m}{M-m}$$where $m$ and $M$ are the minimum and maximum of the data, respectively.
+
+Define a function that takes a vector as input and normalizes it.  Test your function on the data `x <- (1:10)^2`.
+
+## Transforming Data With a Vectorized Function
+
+(a) Use `temps <- rnorm(100,20,4)` to simulate some temperature data.  These temperatures are in degrees Celsius.
+
+(b) Write a vectorized function that converts a temperature in degrees Celsius to a temperature in degrees Fahrenheit.  *If you don't happen to know this off the top of your head, feel free to Google it.  Or, just remember that it is a linear function and we know the corresponding freezing and boiling temperatures of water in both temperature systems.*
+
+(c) Apply your temperature system conversion function from (b) to your vector `temps`.
+
+
+## Functions to Tweak R Commands
+
+In homework 1, we encountered the `which.max` function.  It has an important limitation: applied to numeric vectors, it only returns the index of the *first* maximum.  For example,
+
+```{r}
+x <- c(1, 2, 7, 0, 7)
+which.max(x)
+```
+
+returns `r which.max(x)` and not the index of the second maximum.  But what if we would like to find all the indices of the maximum value in a vector?
+
+(a) For the vector `x` above, write a piece of code that finds the maximum *value* in the vector and store it in the variable `M`.
+
+(b) Write a logical filter that looks only for the maximum value in `x`.  Something `==M`, perhaps?  Once you have this filter, combine it with the `which` function to find all of the indices of the vector `x` holding the maximum value.
+
+(c) Combine your work from (a) and (b) to write a function, `which.max.all`.  Your function should take a numeric vector `x` as input and should return a vector of all of the indices of `x` containing the maximum value.  For the vector `x` written above, your function should return `c(3,5)`.  To get you started, your function should look something like...
+
+```{r,eval=FALSE}
+which.max.all <- function(x) {
+  # find the max and store it in M
+  # filter for the indices that give the value M
+  # return a vector of indices!
+}
+```
+
+## A Function Defining "Pretty Close"
+
+In some data it is natural to allow for small measurement errors.  So, we may not want to find only the indices of the maximum value of a vector, but indices containing values that are "pretty close" to the maximum value in the vector.
+
+(a) Imagine that you have been given a numeric vector `x` and a positive (small) value `epsilon` (we'll use `epsilon` in part (b) ).  Write an R code chunk that stores the maximum value from `x` in the variable `M`.  *Hint:* You may want to write your own vector `x` and number `epsilon` for testing purposes.
+
+(b) What does the R expression `abs(x-M)<epsilon` return, and what does it do?
+
+(c) Now, modify your work from exercise 5.  You should produce a function that takes a numeric vector `x` and a positive value `epsilon` as inputs, and returns a vector of the indices in `x` containing values that are within `epsilon` units of the maximum value in the vector.  Hint:* Your function here should look similar to your function from exercise 5.  Major difference, from a coding point of view... there is an additional input.
+
+```{r,eval=FALSE}
+which.max.approximate <- function(x,epsilon) {
+  # put some code here!
+}
+```
+
+## A Function Defining "Within n Standard Deviations of the Mean"
+
+Adapt your code from the previous exercise to write a function that returns the indices of the values in a vector that are within a specified number `n` standard deviations of the mean of the data in that vector.
+
+## A Function to Extract Information from Strings
+
+In some cases, data that should be numeric is input as character data.  This can happen when unwisely using any number of data collection methods, especially electronic entry forms.
+
+For this exercise, let's suppose that users have entered their heights as a number, then a space, then a unit.  Here is a sample from the data vector:
+```{r}
+heights <- c("62 inches","1.65 meters","1.78 meters","68 inches")
+```
+
+(a) Evaluate the code `strsplit("23 skedoo"," ")[[1]]`.  What data type does it return, and what does it do?
+(b) Evaluate the code `as.numeric("23")`.  What does it do?
+(c) Write a function that takes as input a string of the form `"23 skedoo"`, with a number, a space, and then some characters.  Your function should output the numeric part of the string as a numeric data value.
+(d) Repeat (c), but write your function to return the non-numeric part of the string.
+(e) Now we'll address the actual formatting problem.  Write a vectorized function that takes as input a string formatted as seen in the `heights` vector and as described in (c) and (d).  Your function should output the number of inches; if the units in the data are in meters, you will need to convert the numeric value to inches before returning it.  Once you are done, apply your function to `heights` as a test.
+
+*Note:* Differently formatted data is a very common problem to face as a data analyst.  This can result from poor data collection technique, but more often results from combining data sets acquired from different sources.  Learning how to manipulate strings is an important data analytics skill, and is useful in the data cleaning process.  Google "regular expressions" for more information than you will want to know; this rabbit hole goes deep.
+
+
+## Coding Text Fields With Logical Flags (One-Hot Encoding)
+
+Data might be in the form of text instead of numbers.  For example, a common data field in ecology and in medicine is a *notes* section, where the observer makes some quick notes on whatever they are seeing.
+
+We might want to *code* text data with a logical flag.  A common action is to create a logical vector that corresponds to our character vector where `True` indicates the presence of a certain word and `False`indicates its absence.
+
+Define the test vector `test <- c("doggos","cats","Bears","Doggies")`.  We want to write a function that flags each entry as `True` whenever `dog` is present and `False` otherwise.
+
+(a) Evaluate the code `grepl("alpha",c("alphabet","al"))`.  What does it do?
+
+(b) Evaluate the code `grepl("al",c("alphabet","al"))`.  What does it do?  Compare to (a).
+
+(c) Evaluate the code `grepl("Al",c("alphabet","al"))`.  What does it do?  Read the docs for the `grepl` function; if the case of the letters in the pattern does not matter to you, is there an easy way to fix that?
+
+(d) Write a vectorized function that takes as input a vector of strings like `test`.  Your function should return a logical vector where `True` indicates the presence of the string `dog`, and case should not matter.
+
+(e) This is an incredibly useful tool.  Write a short description of what this exercise is getting at.  This will help set it in your memory; it will almost certainly come up again, and seems to come up often in the projects students select in the course.

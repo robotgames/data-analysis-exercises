@@ -1,0 +1,20 @@
+# Working With Text as Data
+
+This section contains exercises about using the `tidyverse` to deal with text as data.  You will need to have the `tidyverse` installed on your machine, and you will need to load the tidyverse library when working the problems in this section:
+
+```{r}
+library(tidyverse)
+```
+
+## Working with strings
+
+## Common string transformations
+
+## Matching with regular expressions
+
+## Splitting strings
+
+## Substitutions with regular expressions
+
+## One-hot encoding
+

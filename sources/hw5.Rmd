@@ -1,0 +1,210 @@
+# The Fifth Homework: Exploratory Data Analysis, Part II
+
+In these exercises you'll be considering how to graphically present relationships between variables.  For each pair, there is a common "go-to" plot that we'll often begin with:
+
+* numerical versus numerical: scatterplot 
+* numerical versus categorical: histograms or boxplots or violin plots, visually separated with fills or panels
+* categorical versus categorical: bar plots, separated with fills or panels
+
+A reminder about a bit of terminology: "y versus x" means "put y on the vertical axis and x on the horizontal axis". 
+
+## Plotting Simple Relationships
+
+(a) Execute the following code chunk to create some data.
+
+```{r}
+x <- seq(from=-1,to=1,length.out=100)
+y1 <- 0.5*x
+y2 <- 1-x^2
+y3 <- x*(x-1)*(x+1)
+df <- data.frame(x=x,y1=y1,y2=y2,y3=y3)
+```
+
+(b) You can create scatterplots of `y1` versus `x` with base R or with `ggplot`.  Here's how!  Execute the following code chunks to see what happens.
+
+Base R:
+
+```{r}
+plot(x,y1)
+```
+
+`ggplot`:
+
+```{r}
+library(ggplot2)
+ggplot(data=df,aes(x=x,y=y1)) + geom_point()
+```
+
+(c) Repeat part (b) to plot `y2` versus `x` and `y3` versus `x`.
+
+(d) You can change the geometry used in `ggplot` to create lines instead of scatterplots.  Plot `y3` versus `x` but use `geom_line()` instead of `geom_point()`.  Answer:
+
+```{r,echo=FALSE}
+df %>% ggplot(aes(x=x,y=y3)) + geom_line()
+```
+
+## Scatterplots and Smoothed Trends
+
+Load the iris data set and the `tidyverse`:
+
+```{r,warnings=FALSE,message=FALSE}
+data("iris")
+library(tidyverse)
+```
+
+(a) You can plot the petal width versus the petal length using `ggplot` and `geom_point` as in the following code chunk:
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point()
+```
+
+Color the points in the scatterplot by adding a `col=Species` option to the `aes` function.  Answer:  Your plot should look like
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width,col=Species)) +
+  geom_point()
+```
+
+(b) You can add a smoothed trend to a scatterplot with `geom_smooth`.  Add this component to the sample plot code from (a).  *Remember: to add a plot component in `ggplot`, you literally add with the `+` sign.*  Answer: Your plot should look like the following
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point() + 
+  geom_smooth()
+```
+
+(c) The smoothed trend by default does not assume a line, but you can make that happen.  Revisit your code in (b) and include the `method="lm"` option in the `geom_smooth` function.  Answer: Your plot should look like
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point() + 
+  geom_smooth(method="lm")
+```
+
+(d) Next, try revisiting the code in part (a) and changing the color option `col` in the aesthetic `aes` to `col=Sepal.Length`.  Describe what happens.  In particular, how is this different from using `col` with a categorical variable, and how many numeric variables are now represented in the plot?
+
+*Note: Read the documentation for `geom_smooth` for more options for adding a trend indicator.*
+
+## Boxplots and Violin Plots
+
+We'll work with the iris data set again in this exercise.  Let's compare the petal length and the species variables.  Another way of phrasing this comparison is "What is the petal length, broken down by species?"
+
+(a) Create a boxplot of petal length broken down by species with `ggplot` as in the following code chunk.  State a conclusion from this plot; if the petal length measurement is *blah*, then the species is clearly/probably *other blah*.
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Species)) +
+  geom_boxplot()
+```
+
+(b) You can add a bit of color to your plot by including `fill=Species` as an option in the `aes` command in `ggplot`.  Try it!
+
+(c) An issue with boxplots is that they do not include a lot of information about the distribution.  You can get something like this effect with violin plots.  Replace `geom_boxplot` by `geom_violin` in the plot in exercise (b) and see what happens!
+
+(d) Now add the `trim=FALSE` option to `geom_violin`.  What happens?  *Note: Read the documentation for `geom_violin` for more information.*
+
+## Density Plots by Factor Level
+
+Create a density plot for the petal length variable in iris, broken down by species.  Plot the density plots on the same axes, with different colors and with transparency so that we can see where they overlap.  *Note: Review homework 4.  This plot compares a numeric variable and a categorical.*
+
+
+## More Density Plots by Factor Level With Facet Wrap
+
+
+Repeat exercise 3 but separate the density plots by using the `facet_wrap` function in `ggplot`.  *Note: Review homework 4, exercise 7.*
+
+
+## Scatterplots - Handling Too Many Data Points
+
+
+We may encounter a number of practical problems when creating scatterplots.  A common issue is that we may simply have too many data points.  There are a number of ways to work around that, and in this exercise we'll look at one.
+
+Load the storms data set from the `dplyr` package in the `tidyverse`.  You can accomplish that with
+
+```{r}
+library(tidyverse)
+data ("storms")
+```
+
+(a) First, let's visualize the problem.  Use `geom_point` with `ggplot` as you did in exercise 1a to create a scatterplot of wind versus pressure.  *Note:  You should see something that looks a bit like horizontal stripes in your data.  This means that the variable on the vertical axis has been rounded; in this case, examination of the wind variable suggests that it has been rounded to multiples of 5.*
+
+(b) There are too many points in the scatter plot.  Many of them overlap.  We'll combine the `cut` function with `group_by` and `summarize` in a clever way to bin the horizontal axis.  In this piece of the exercise, you should create a new categorical variable, `bin_pressure`, by using the `cut` function with `breaks=30`.  We'll also rename the levels of `bin_pressure` so the plot will be a little nicer later on.  *Note: Review homework 4, exercise 10.*
+
+```{r}
+storms$bin_pressure <- cut(storms$pressure,breaks=30)
+new_names <- seq(min(storms$pressure),max(storms$pressure),length.out=30)
+levels(storms$bin_pressure) <- round(new_names)
+```
+
+(c) At this point we have several options for plotting the binned data.  In this part of the exercise, try creating a boxplot with `x=bin_pressure` and `y=wind` in the aesthetic in `ggplot`.  What happens?  Does this graph clarify anything about the data which was unclear from the scatterplot?  For instance, can you determine which pressure values lead to more extreme wind values?  Answer: Your plot should look like the following.  The `x`-axis labels are a mess if you don't rotate them.  You can do that by adding a component like `theme(axis.text.x = element_text(angle = 90, vjust=0.5,hjust=-0.2))` to your `ggplot` code.
+```{r,echo=FALSE}
+ggplot(data=storms,aes(x=bin_pressure,y=wind)) +
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5,hjust=-0.2))
+```
+
+
+(d) Another option for plotting is to summarize first.  You can build a summarized data set using
+
+```{r,eval=FALSE}
+sdata <- storms %>%
+  group_by(bin_pressure) %>%
+  summarize(mean_pressure = mean(pressure),
+            mean_wind=mean(wind),
+            n=n())
+```
+
+You can then plot using the summarized data:
+
+```{r,eval=FALSE}
+ggplot(data=sdata,aes(x=mean_pressure,y=mean_wind)) +
+  geom_point()
+```
+
+This gives a very clear indication of trend (but it ignores information about extreme values).  Add the `size=n` option to the aesthetic.  What do the sizes of your points now represent?
+
+(e) You can produce a ribbon graph with a bit more work in summarizing (see `geom_ribbon` in the documentation).  Re-create the `bin_pressure` variable using 40 breaks.  Then, summarize as before, but instead of creating a `mean_wind` variable, create a `min_wind` variable with the `min` function and a `max_wind` variable with the `max` function.  Once you have this summarized data set, produce a plot.  `ggplot` should have an aesthetic with `x=mean_pressure`, `ymin=min_wind`, and `ymax=max_wind`, and the geometry should be `geom_ribbon`.  What does this ribbon plot tell you about the relationship between wind speed and pressure?  Answer: Here is my plot.  I added a `mean_wind` variable in the summary and a `geom_smooth` geometry to give a sense of the trend.
+```{r,echo=FALSE}
+storms$bin_pressure <- cut(storms$pressure,breaks=30)
+new_names <- seq(min(storms$pressure),max(storms$pressure),length.out=30)
+levels(storms$bin_pressure) <- round(new_names)
+sdata <- storms %>%
+  group_by(bin_pressure) %>%
+  summarize(mean_pressure = mean(pressure),
+            mean_wind=mean(wind),
+            min_wind=min(wind),
+            max_wind=max(wind),
+            n=n())
+ggplot(data=sdata,aes(x=mean_pressure,y=mean_wind,ymin=min_wind,ymax=max_wind)) +
+  geom_ribbon(fill="red",alpha=0.6) + 
+  geom_smooth(size=1.0,color="black") + 
+  theme(axis.text.x = element_text(angle = 45))
+  
+```
+
+
+(f) You can also produce a binned hexagon plot for a scatterplot.  First, install the package `hexbin`.  Load the `tidyverse` and `storms` data as above.  Then try executing the following.  Interpret the plot you are seeing.  How does it compare to the ribbon plot?  Does it provide any extra infromation?  Is anything about it more difficult to read?
+
+```{r,eval=FALSE}
+ggplot(data=storms,aes(x=pressure,y=wind)) + 
+  geom_hex(binwidth=c(5,5))
+```
+
+
+## EDA - Write a Report and Slide Deck
+
+
+In this exercise you will write documentation for your process, a short report, and a slide deck on the abalone shell data set.  
+
+(a) Load the abalone shell data set using
+
+```{r}
+abalone <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/abalone.csv")
+```
+
+(b) Explore the abalone data set.  Get a feel for the data.  The `Sex` variable most likely needs to be converted to a factor variable.  Make sure that you are documenting your entire process here.
+
+(c) Ultimately, the goal is to get abalone with higher shell weights.  We'd like to explore the relationships between the `Shell.weight` variable and the other variables.  Produce plots comparing the key variable to each of the other variables.  Make sure that you are documenting all of your work here.
+
+(d) Formulate some conclusions.  Which of the other variables seem to have the strongest relationship to the `Shell.weight` variable?  How easy would these other variables be to measure?  Make sure that you are documenting all of your work here.
+
+(e) Write a one page report summarizing your findings.  Include any relevant graphs or tables to make your points, but your report must be one page or less.
+
+(f) Create a six slide deck detailing your results and process as discussed in class.

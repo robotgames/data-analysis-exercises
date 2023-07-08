@@ -1,0 +1,186 @@
+# The Thirteenth Homework: An Introduction to Unsupervised Learning
+
+## k Means Algorithm for Clustering
+
+In this exercise we'll use the k-means algorithm to cluster some synthetic data.
+
+(a) Execute the following code block to create some synthetic data.
+```{r,echo=TRUE}
+set.seed(1234)
+x <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+y <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+df <- data.frame(x=x,y=y)
+```
+
+(b) Plot the synthetic data from (a).  Is it clear that there are two clusters?  Answer:
+```{r}
+library(ggplot2)
+ggplot(data=df,aes(x=x,y=y)) +geom_point()
+```
+
+(c) Use `kmeans` to create a model of the clusters.  Use the option `centers=2`.
+```{r}
+km.model <- kmeans(df,centers=2)
+```
+
+(d) Attach the cluster information to the data frame `df`.  My code looks like the following; yours may differ depending on the names you chose for your variables.
+```{r,echo=TRUE}
+df$cluster <- factor(km.model$cluster)
+```
+
+(e) Now let's plot the data again, but this time color the points by cluster.  Answer:
+```{r}
+ggplot(data=df,aes(x=x,y=y,col=cluster)) + geom_point()
+```
+
+(f) Use the `cluster` library to visualize the clusters.  My code:
+```{r,echo=TRUE}
+library(cluster)
+clusplot(df[,1:2],km.model$cluster)
+```
+
+*Note that clusplot transforms the data somewhat, so the data points in the two plots may look numerically different, but qualitatively similar.*
+
+## Model Based CLustering
+
+In this exercise we'll used model-based clustering to create clusters for the synthetic data from exercise 5.  Remember, k-means clusters solely based on distances.  Model-based clustering first hypothesizes parametric models for the distributions from which data was drawn, and then optimizes the parameters in the hypothesized distributions to best fit the data in a sense.
+
+(a) Execute the following code block to create some synthetic data.
+```{r,echo=TRUE}
+set.seed(1234)
+x <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+y <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+df2 <- data.frame(x=x,y=y)
+```
+
+(b) Execute the following code to cluster the data using an unknown number of flexible multivariable normal distributions.
+
+```{r,echo=TRUE}
+library(mclust)
+model.cluster <- Mclust(df2)
+```
+
+(c) Evaluate the BIC to determine the number of clusters.
+
+```{r}
+plot(model.cluster,what="BIC")
+```
+
+(d) Create a cluster variable and then plot.  Answer:
+
+```{r}
+df2$cluster <- factor(model.cluster$classification)
+ggplot(data=df2,aes(x=x,y=y,col=cluster)) +geom_point()
+```
+
+(e) How does this compare to the clusters we computed in exercise 5?  Execute the following code chunk to find the frequency of agreement in the labels.
+
+```{r,echo=TRUE}
+sum(df$cluster == df2$cluster)
+```
+
+There are 250 data points, and so nearly all were classified in the same way by both methods.
+
+## Comparing k Means and Model Based Clustering
+
+
+In this exercise we'll create some synthetic data and examine the performance of k-means clustering and model-based clustering.
+
+(a) Execute the following code chunk to create a synthetic data set.
+
+```{r,echo=TRUE}
+set.seed(1234)
+x <- c(rnorm(100,mean=0,sd=0.4),rnorm(100,mean=0.7,sd=0.07))
+y <- c(rnorm(100,mean=0.6*x,sd=0.15),rnorm(100,mean=0,sd=0.3))
+trueclass <- factor(c(rep(1,100),rep(2,100)))
+df <- data.frame(x=x,y=y,trueclass=trueclass)
+```
+
+(b) Create a scatterplot of the data set you created in part (a), and color the points using the `trueclass` variable.  My plot:
+
+```{r}
+library(ggplot2)
+ggplot(data=df,aes(x=x,y=y,col=trueclass)) + geom_point()
+```
+
+(c) Before building clusters, extract the numerical columns and store in a training data set called `train`.
+
+```{r}
+train <- df[,1:2]
+```
+
+(d) Use k-means to create 2 clusters for the data in train.  Add this clustering as a column to `df`, named `kmeans`.  Then plot, coloring the points using `kmeans`.  Try re-running this several times and noting the differences; k-means is a stochastic algorithm, meaning that it has some randomness.
+
+```{r}
+kmeans.model <- kmeans(train,centers=2)
+df$kmeans <- factor(kmeans.model$cluster)
+ggplot(data=df,aes(x=x,y=y,col=kmeans)) + geom_point()
+```
+
+(e) Now use Mclust to create a model-based clustering for the data.  Add this clustering as a column to `df`, named `mclust`.  Then plot, coloring the points using `mclust`.  *Note: Here is my plot.  I have added an element, the uncertainty in the classification, to the plot as the size of the point.  You can do that too!  You can run `mclust.model <- Mclust(train)`, then extract the uncertainty with `mclust.model$uncertainty`.  Store that in a column in `df` and then use it in your plot to alter the size of the point.*
+```{r}
+library(mclust)
+mclust.model <- Mclust(train)
+# plot(model.cluster,what="BIC")
+# 2 clusters
+df$mclust <- factor(mclust.model$classification)
+df$uncertainty <- mclust.model$uncertainty
+ggplot(data=df,aes(x=x,y=y,col=mclust,size=uncertainty)) + geom_point()
+```
+
+(f) Which clustering approach seems "better"?  What do we even mean by "better"?
+
+## Clustering a Complex Data Set
+
+At this point we have examined two different methods of clustering.  Let's now move on to applying them to a real data set.  The data comes from a water treatment plant.  The goal is to cluster the data to broadly understand the different states (good, bad, and so on) that the plant operations fall into.  You can find more about this data set at its [UCI Machine Learning Repo page](https://archive.ics.uci.edu/ml/datasets/Water+Treatment+Plant).  I've already cleaned the data and named the variables.
+
+(a) Execute the following code block and examine the data set.
+
+```{r,echo=TRUE}
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/water_treatment.csv")
+```
+
+(b) Create a new data frame `train` with the numerical columns from `df` normalized.
+```{r}
+normalize <- function(x) {
+  (x-min(x))/(max(x)-min(x))
+}
+train <- as.data.frame(lapply(df,normalize))
+```
+
+(c) The data is high-dimensional and so visualizing it will be difficult.  Use the following code and the elbow method to try to determine a good number of clusters.  What happens?  Choose a number of clusters and use kmeans to create clusters.  Attach a cluster variable `kmeans` to `df`.
+```{r,echo=TRUE}
+k_values <- 1:30
+get_wss <- function(k) {
+  kmeans(train,centers=k)$tot.withinss
+}
+wss_values <- sapply(k_values,get_wss)
+plot(k_values, wss_values,type="b", pch = 19)
+```
+```{r,cache=TRUE}
+kmeans.model <- kmeans(train,centers=5)
+df$kmeans <- factor(kmeans.model$cluster)
+```
+
+(d) Now let's use Mclust to create clusters.  Create the model and the BIC plot.  Attach this cluster data to `df` as `mclust`.  *Note: This may take some time to fit.  Maybe a lot.  Get some snacks.*
+```{r}
+mclust.model <- Mclust(train)
+plot(mclust.model,what="BIC")
+df$mclust <- factor(mclust.model$classification)
+```
+
+(e) How many clusters did Mclust produce?
+
+```{r,eval=FALSE}
+levels(df$mclust)
+```
+
+(f) Okay, now what can we *do* with this?  Fit a random forest model to the data, predicting the `mclust` clusters you just produced.  Produce a variable importance plot with the top 10 most important variables.  This will tell us which of the variables most strongly determined the natural groupings in the data, and that can help determine future policies about what measurements to monitor.
+```{r}
+library(randomForest)
+rf.model <- randomForest(mclust ~ ., data=df,
+                         mtry=3,
+                         ntree=500,
+                         importance=TRUE)
+varImpPlot(rf.model,n.var=10)
+```

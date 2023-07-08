@@ -1,0 +1,18 @@
+# Working With Factors
+
+This section contains exercises about using the `tidyverse` to deal with factors.  You will need to have the `tidyverse` installed on your machine, and you will need to load the tidyverse library when working the problems in this section:
+
+```{r}
+library(tidyverse)
+```
+
+## Working with factors
+
+## Factor mismatches with levels
+
+## Combining factors
+
+## Ordered factors
+
+## Changing the levels in factors
+

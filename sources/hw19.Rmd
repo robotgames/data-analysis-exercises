@@ -1,0 +1,76 @@
+# Project 1
+
+## Project Overview
+
+In Project 1 you will **select** a data set, **explore** it, and **report** on your findings.  You may choose to work with a team of up to 3 members in total, or you may work alone.  **Project 1 is due Friday, November 4 by 4PM**.
+
+There is a second project in the course.  The second project will ask you to create models of the relations among two or more variables.  You may use the same data set in project 2 that you used in project 1, thus treating project 2 as a sort of sequel.  Or take the opportunity to explore a new data set!
+
+In the sections below, I'll discuss each of the components of project 1 in detail.
+
+### Select and Clean a Data Set
+
+Select a data set to work with.  You can collect the data yourself, assemble the data set from components of other available data sets, or simply use a data set that is available.
+
+**Option: Collecting data** - This can be a good experience, and you will know the strengths and weaknesses of the data collection practices, and how those are reflected in the data set itself.  A common data collection project is to record data from websites in a regular way; students in an earlier class recorded textbook prices on Amazon and as listed in our campus bookstore.  
+
+There are three restrictions on collecting data yourself.  First, you may not collect human research data - including survey data, human performance data such as your video game stats, and observational data - for use in your project.  This requires additional clearance from our Institutional Research Board (IRB), and it is unlikely that our timeline will allow for that.  Second, make sure that you will be able to collect a sufficient amount of data in a reasonable time frame.  Third, you must collect data using methods that comply with any applicable laws and ethical practices.
+
+**Option: Assemble the data** - It may be the case that there is a variable collected in one data set, and a second located in another data set, and so on.  If you are able to identify a *key* - an identifier that allows you to ensure that observational units are the same - then you can draw those variables and assemble your own data set.  This is common in economics and in political science.  We may have economic data on education and income by county in the US in one data set, and we may have data on voting preferences by county in a second data set.  Since the county may be used as a key, you will be able to extract and reassemble this data into a single data set.
+
+**Use an available data set** - You may find an available data set that answer some interesting questions and meets your needs.  I'll post some sources for good data sets in the Project 1 folder in BlackBoard.
+
+Your data set should exhibit the following features:
+
+* At least 100 observations (preferably many more).
+
+* At least two numerical variables and at least two factor variables.
+
+* A clear connection to the data sources.  For example, if your data set has a variable `LOX23.14` and that variable relates very nicely to other variables, but you have no idea what it is ... well, that's a serious problem.
+
+Once you have selected your data set, you will need to clean it.  Account for missing values, format variables correctly, rename variables or factor levels for clarity, and so on.  You may find a need to engineer some features (for example, exercise 8 in Homework 2 discusses how to engineer logical features from character features).  *Cleaning your data may take a good long while!*
+
+### Explore the Data Set
+
+Begin with `summary`!
+
+Then, perform univariate exploration, analyzing each variable individually.  You should look both for *typical* behavior for variables, and for individual data points that exhibit *extreme* behaviors.
+
+At that point, you are prepared to analyze relationships among variables, using bivariate plots.  You can add non-spatial dimensions to bivariate plots to represent additional variables, such as color, shape, or size).
+
+You may find that some of your variables simply aren't interesting or don't relate to others.  You should cut those from your data set.
+
+While you are exploring your data set, you should be watching for *two primary types of findings*:
+
+* **Clear conclusions** - Some plots will clearly indicate some initial findings.
+* **Questions for further study** - Other plots will raise questions.  You may be able to answer them at this time, but you may need a more complex mathematical model.
+
+### Report on Findings
+
+Report on your findings.  **Don't show results for everything that you did.**  It is sufficient to simply say "We created histogram/bar plot analyses for each of the variables.  Points of interest are ..."  If there was little of interest in a variable's plots - no clear findings - then you should strongly consider not including that plot in your report.
+
+For this project, you will need to produce two reports: a 1 page executive overview, and a second, more complete report.  Your executive overview should be written for a nontechnical audience (assume a level of knowledge approximately equal to introductory statistics).  The complete report should be written for a junior/senior level student in the natural/social sciences who has familiarity with statistical software and jargon.  The complete report should document data collection/assembly if applicable, data cleaning steps, and construction of tables and plots.  Both reports should clearly report your findings, stating conclusions as such and raising questions for further study.
+
+## Project 1 Advice
+
+Get started early.  As part of Homework 5, I'll ask you to identify your data set, so I'm doing my part to help you get moving!  
+
+As with any scientific report, you will likely find yourself struggling to balance clarity and concision.  Clarity requires more explanation, more graphs, and generally more!  Concision asks that you restrict your reporting, focus on your essential discussion points, and write sentences that are direct.  A good question to ask yourself whenever you are including a table, plot, or paragraph is *Which of my findings does this item contribute to?*  If you struggle with answering this, you should strongly consider cutting this item from your report.
+
+Label your graphs and tables using captions.  This makes your written discussion much easier.  "As we can see in Table 1..." is much clearer than "As we can see in the table where we wrote frequencies for flamingo beak lengths and nesting site selection ..."
+
+## Project 1 Rubric
+
+Project 1 is worth 10 points.
+
+* 1 point - The selected data set exhibits the features specified above.
+* 1 point - The executive overview exhibits good grammar and clarity, and is written for a nontechnical audience.
+* 1 point - The executive overview has appropriate graphs and tables supporting the report's findings.
+* 1 point - The complete report exhibits good grammar and clarity, and is written for the appropriate audience.
+* 1 point - The complete report has appropriate graphs and tables supporting the report's findings.
+* 1 point - The complete report clearly states the origins of the data set, and documents data cleaning efforts and feature creation.
+* 1 point - The complete report documents the meaning of each of the variables included in the data set.  The connection to real world measurements should be clear and unambiguous.
+* 1 point - The complete report documents the exploratory data analysis, both univariate and bivariate/multivariate. 
+* 1 point - The complete report includes at least one of each of the following graphical comparisons: numerical versus numerical, numerical versus factor, and factor versus factor.
+* 1 point - Both reports clearly state findings, both conclusions and questions for further study.
+
