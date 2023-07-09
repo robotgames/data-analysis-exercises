@@ -1,2 +1,14 @@
-# Day 14: Random Variables and Hypotheses
+# Day 14: DW - Strings and Regular Expressions
+
+## Working with strings
+
+## Common string transformations
+
+## Matching with regular expressions
+
+## Splitting strings
+
+## Substitutions with regular expressions
+
+## One-hot encoding
 

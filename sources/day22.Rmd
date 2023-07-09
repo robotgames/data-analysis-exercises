@@ -1,0 +1,60 @@
+# Day 22: Hypothesis Tests
+
+## Hypothesis Testing - Single Sample Mean
+
+
+Let's imagine that we gather a sample of 50 irises of the setosa species, we measure their petal lengths, and we compute the mean of those petal lengths.  You can find our measurements in the `iris` data set.
+
+(a) Perform a formal test of hypothesis testing the hypothesis that the population mean petal length of setosa irises is 1.6.  Use a two tailed test and a confidence level of 95%. Make sure to state your p-value explicitly.
+
+(b) Use the output of `t.test` to determine which hypothesized values for the population mean petal length will be rejected by a test with confidence level 95% (rejection level 5%).
+
+
+## Hypothesis Testing - Difference in Population Means
+
+
+(a) Make a plot comparing the petal lengths by species in the iris data set.  Are the means for the versicolor and virginica species significantly different, based on your graph?
+
+(b) Use a t-test at the 95% confidence level to test the hypothesis that the mean petal lengths of the versicolor and virginica species are the same.  (Note: unpaired and two-tailed!)
+
+
+## Estimating the Power of a Hypothesis Test (check answer in part a)
+
+Let's suppose you collect the following data (copy this into your RMarkdown document and execute it).
+
+```{r}
+set.seed(1234)
+data <- rgeom(40,prob=1/6)
+```
+
+(a) Estimate the 95% confidence interval on the population mean based on this data.  You can do this with a simulation, but `t.test` may give a faster method.  Answer:
+
+```{r,echo=FALSE}
+test_info <- t.test(data,mu=2)
+test_info$conf.int
+```
+
+(b)  Suppose that the true mean of the population is 4.8. (call this hypothesis H1.)  What is the power of the test in rejecting the null hypothesis H0: population mean is 3.0, at a rejection level of 5%, with a two-tailed test?  Answer:
+
+```{r,echo=FALSE}
+error <- sd(data)/sqrt(length(data))
+tickmarks <- qnorm(c(0.025,0.975),
+                   mean=3.0,sd=error)
+1 - (pnorm(tickmarks[2],mean=4.8,sd=error) - 
+  pnorm(tickmarks[1],mean=4.8,sd=error) )
+  
+```
+
+(c) Suppose that the true mean of the population is 3.8. (call this hypothesis H1.)  What is the power of the test in rejecting the null hypothesis H0: population mean is 3.0, at a rejection level of 5%, with a two-tailed test?  Answer:
+
+
+```{r,echo=FALSE}
+error <- sd(data)/sqrt(length(data))
+tickmarks <- qnorm(c(0.025,0.975),
+                   mean=3.0,sd=error)
+1 - (pnorm(tickmarks[2],mean=3.8,sd=error) - 
+  pnorm(tickmarks[1],mean=3.8,sd=error) )
+```
+
+(d) Why the difference in power?  Discuss.
+

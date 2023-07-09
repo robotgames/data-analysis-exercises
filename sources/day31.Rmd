@@ -1,0 +1,195 @@
+# Day 31: Classification with k-Nearest Neighbors
+
+and the predictive model framework
+
+## Train/Test Split Errors - Non-Random Split
+
+In this question we want to explore why it is important to use random sampling to split data into train/test sets.  Data often appears in data sets in sorted or grouped rows.  For example, the data in the `iris` data set is grouped by the `Species` variable.  Let's look at some synthetic data, sort it on one variable, make the train/test split incorrectly, and see what happens!
+
+(a) Execute the following code to create a synthetic data set `df` sorted on the `x` variable.
+```{r}
+set.seed(1234)
+x <- runif(100)
+noise <- rnorm(length(x),mean=0,sd=0.02)
+y <- 1-(x-0.75)^2 + noise
+df <- data.frame(x=x,y=y)
+df <- df[order(df$x),]
+```
+
+(b) Plot the data, `y` versus `x`.
+
+(c) We want to make the train/test split, but in this part we will make it **incorrectly**.  Create a training data set, `train_wrong`, and a test data set `test_wrong` by taking the first fifty and the last fifty rows in `df`, respectively.
+```{r,echo=FALSE}
+train_wrong <- df[1:50,]
+test_wrong <- df[51:nrow(df),]
+```
+
+(d) Now plot the data in `train_wrong`.  Answer:
+```{r,echo=FALSE}
+library(ggplot2)
+ggplot(data=train_wrong,aes(x=x,y=y)) + geom_point()
+```
+
+(e) Great, looks like a linear relationship!  Let's fit a linear model `lin.mod` to the data in `train_wrong` using the formula `y~x`.  What is the $R^2$ value?  Answer:
+```{r,echo=FALSE}
+lin.mod <- lm(y~x,data=train_wrong)
+summary(lin.mod)$r.squared
+```
+
+(f) Note that we can compute the $R^2$ value using a formula.  Try executing the following code.
+```{r}
+y.predicted <- predict(lin.mod)
+y.actual <- train_wrong$y
+mu.predicted <- mean(y.predicted)
+mu.actual <- mean(y.actual)
+numerator <- (sum((y.predicted - mu.predicted)*(y.actual - mu.actual)))^2
+denominator <- (sum((y.predicted-mu.predicted)^2)*sum((y.actual-mu.actual)^2))
+numerator/denominator
+```
+
+In R you can also use
+```{r}
+cor(y.predicted,y.actual)^2
+```
+
+(g) Okay, it's time to evaluate our model on our test set `test_wrong`.  Execute the following code, making sure you understand what is going on!
+```{r}
+y.predicted <- predict(lin.mod,test_wrong)
+y.actual <- test_wrong$y
+cor(y.predicted,y.actual)^2
+```
+
+(h) Oof.  Why is $R^2$ so much lower?  Let's plot the whole data set together with predictions across all the data.  Execute the following code:
+```{r}
+df$y.predicted <- predict(lin.mod,df)
+df$traintest <- c(rep("train",50),rep("test",50))
+ggplot(data=df,aes(x=x,y=y,col=traintest)) +
+  geom_point() +
+  geom_line(aes(x=x,y=y.predicted),col="black")
+```
+
+(i) Okay, what's going on here?  Write "the moral of the story" for this problem.
+
+*Note: This is not an unusual scenario.  Data is often sorted on one variable or another.  Random sampling for train/test sets helps to avoid bias.*
+
+
+## Train/Test Split - Correcting the Previous Exercise
+
+Using the data set from Exercise 1...
+
+(a) Execute the following code to *correctly* perform a 50/50 train/test split.
+```{r}
+n <- round(nrow(df) * 0.5)
+in_train <- sample(1:nrow(df),n)
+train <- df[in_train,]
+test <- df[-in_train,]
+```
+
+(b) Plot `y` versus `x` for the `train` data set.  What linear model is indicated?
+
+(c) Fit a linear model (your choice on relationship) to the `train` data.  Compute $R^2$.  Answer for my choice of model:
+```{r,echo=FALSE}
+lin.mod <- lm(y~x+I(x^2), data=train)
+summary(lin.mod)$r.squared
+```
+
+(d) Now evaluate your model's performance on your test data.  If the $R^2$ value is about the same, great!  If it's higher, you're probably just lucky; don't let it go to your head.  If much lower, then the model overfit the training data.  Here's my code for my `lin.mod` model:
+```{r}
+y.predicted <- predict(lin.mod,test)
+y.actual <- test$y
+cor(y.predicted,y.actual)^2
+```
+
+
+
+
+## Cubic Spline Model
+
+(a) Download the IMDB data using the following code.
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/tmdb_5000_movies.csv") %>%
+  select(original_title,budget,revenue)
+```
+
+(b) Split the data into train/test data using a 50/50 split.
+```{r,echo=FALSE}
+n <- round(nrow(df)*0.5)
+in_train <- sample(1:nrow(df),n)
+train <- df[in_train,]
+test <- df[-in_train,]
+```
+
+(c) Plot `revenue` versus `budget` for the training data set.  My plot:
+```{r,echo=FALSE}
+library(ggplot2)
+ggplot(data=train,aes(x=budget,y=revenue)) + geom_point()
+```
+
+(d) Let's fit a cubic spline model to this data with `df=4` as an option.  Try it!
+```{r,echo=FALSE}
+library(splines)
+spline.mod <- lm(revenue ~ bs(budget,df=4),data=train)
+```
+
+(e) Compute $R^2$ for the training data.  My answer:
+```{r,echo=FALSE}
+y.predicted <- predict(spline.mod)
+y.actual <- train$revenue
+cor(y.predicted,y.actual)^2
+```
+
+(f) Not bad!  But how does the model perform on the test data?  Check $R^2$ for the test data.  My answer:
+```{r,echo=FALSE}
+y.predicted <- predict(spline.mod,test)
+y.actual <- test$revenue
+cor(y.predicted,y.actual)^2
+```
+Great!  It doesn't appear that we overfit our model.  *Note: You may see a warning about `x` values beyond boundary knots when making predictions on the test set.  This is because the ranges of the `x` values in `train` and `test` may be different.*
+
+## Aside: Train-Test Split Code
+
+Throughout this homework set, you will need to use a train/test split for your data.  I have not always written this into the exercises; it is a basic and expected operation!  Throughout, use a 60/40 random split for train/test splits.  Here's a function that will do this:
+
+```{r}
+traintest <- function(df,fraction_train=0.6){
+  n <- round( fraction_train * nrow(df) )
+  in_train <- sample(1:nrow(df),n)
+  tr <- df[in_train,]
+  te <- df[-in_train,]
+  return(list(train=tr,test=te))
+}
+```
+And here is how to use the function to split a data frame `df`:
+```{r,eval=FALSE}
+temp <- traintest(df)
+train <- temp$train
+test <- temp$test
+rm(temp)
+```
+
+*Note!*  Throughout this homework set, you will need to standardize the numerical data.  You want to do this to the same scale and do this only after the train/test split, which means that the training data will set the scale.  Here is how to build a normalizer function.  *This gets a little messy.*
+
+```{r,eval=FALSE}
+temp <- train
+temp$Target <- NULL # You'll have to do this for the target variable in temp
+M <- as.vector(lapply(temp,max))
+m <- as.vector(lapply(temp,min))
+normalize <- function(x) {
+  y <- lapply(1:ncol(x), function(z) (x[[z]]-m[[z]])/(M[[z]]-m[[z]]))
+  names(y) <- names(x)
+  return(y)
+}
+temp2 <- normalize(temp)
+```
+
+## In Your Own Words - Train/Test Split and Validation Sets (more IYOW exercises?)
+
+
+No code for this first exercise!
+
+(a) In your own words explain why we use the train/test split before training machine learning models, and describe best practices for use of the test set.  In particular, how many times and for what purpose do we use the test set?
+
+(b) In your own words, explain what the validation procedure and sets are and why we use them.
+
+

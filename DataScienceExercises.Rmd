@@ -57,6 +57,42 @@ Other notes:
 * Hypothesis testing does not comprise a large component of the course; this was not intended to be an introductory statistics course.  I don't recommend omitting the material in homework 8 entirely, as many metrics for model performance are couched in the language of p-values.  However, the exercises on power estimation and ANOVA can be omitted if time is short.
 * I record video captures of myself working through various R/RStudio tasks.  This is difficult to capture in a static book form and so easy as a video!    
 
+## Readings in the Course
+
+Fischetti, Tony. *Data analysis with R: second edition*. Packt Publishing Ltd, 2018.  I find this an approachable read for my students coming from a non-coding background.
+
+James, Gareth, et al. *An introduction to statistical learning with applications in R: second edition*. Vol. 112. New York: springer, 2021.  An absolute classic.  At the time I wrote these notes, this book was available in pdf form [at the authors' website](https://www.statlearning.com/).
+
+Wickham, Hadley, and Garrett Grolemund. *R for data science: import, tidy, transform, visualize, and model data.*  O'Reilly Media, Inc., 2016.  This is a treasure trove of resources for practitioners who use the tidyverse.  At the time I wrote these notes, this book was [available freely on the web](https://r4ds.had.co.nz/) .
+
+## Data Sets and Where to Find Them
+
+Here are some sources for data sets for the course. The data available varies a good bit. You and your students should plan to spend some time exploring different data sets; you want to make sure that you select data that you and they are able to work with. In particular, the data should be
+
+* Tabular.  CSV format is best.  Excel notebooks can be imported using the `readxl` library.  Some data sets are structured but not tabular and are usually stored in the .json file format.  Other data sets are unstructured; these might be collections of images, audio recordings, or video files. We do not address unstructured data in these notes.
+* Relatively clean and well-formatted already.
+* Of a size small enough for you to work with on your machine.  Memory is the real measure here; Gb of data may be difficult to work with on most personal machines.
+
+Data sources:
+
+* Kaggle has some great data sets to explore. Most are cleaned up already.  You will need a login.  At the time I wrote these notes, this was free.
+* UCI Machine Learning Repository has some well-archived data sets.  Many of the data sets are stored as tabular data together with a metadata file.  The variable names are located in the metadata file and will need to be attached to the imported tabular data frame somehow.
+* data.gov and data.ca.gov and dataLA provide open data access to non-sensitive government data sets.  Our institution is located in California and thus the listing of the CA-centric data sets.  Many other states/counties/cities have their own data hubs.  Explore!
+* FRED is the home for the Federal Reserve Economic Data.
+* NCAR/UCAR is the data archive for the National Center for Atmospheric Research.
+* The FiveThirtyEight data page has a lot of interesting data sets tied to their articles on politics, sports, and economics.
+* Google has a data set search tool. Be a bit cautious using this. It is free to use but not all of the data linked through it is free...and some data can be tremendously expensive.
+* Datahub.io is another archive of open data sets that are mostly cleaned.
+* The Earthdata site gives access to NASA's observations of Earth.
+* CERN's Open Data site is not for the faint of heart.
+* UN/WHO Global Health Observatory data repository.
+* FBI Crime Data explorer.
+
+## Additional Resources
+
+* [Posit cheat sheets](https://posit.co/resources/cheatsheets/) for R/RStudio.  Solid gold.
+* [Bookdown's home page](https://bookdown.org/) .  Bookdown is an extension of RMarkdown for creating books (these notes were compiled in bookdown).  Bookdown's page contains links to a good set of resource texts that were authored in bookdown.
+
 ```{r child="sources/day4.Rmd"}
 
 ```

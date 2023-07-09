@@ -1,2 +1,4 @@
-# Day 12 - EDA with Geospatial Data
+# Day 12 - EDA and Other Data Formats
+
+JSON and geospatial, maybe discuss extracting from the web?
 

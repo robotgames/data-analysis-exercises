@@ -1,0 +1,62 @@
+# Day 27: Factors as Predictors, Selecting Predictors
+
+## Binary Factors as Predictors
+
+(a) Create the following synthetic data.
+```{r}
+set.seed(12345)
+x <- runif(500,0,10)
+noise <- rnorm(length(x),0,0.2)
+ya <- 10 - x + noise
+noise <- rnorm(length(x),0,0.2)
+yb <- 5 - x + noise
+syn <- data.frame(x=c(x,x),
+                  y=c(ya,yb),
+                  group=c(rep("a",length(x)),
+                          rep("b",length(x))
+                          )
+                  )
+```
+
+(b) Create a scatterplot of the synthetic data.  Color the points by group.  Answer:
+```{r,echo=FALSE}
+ggplot(data=syn,aes(x=x,y=y,col=group)) + geom_point()
+```
+
+(c) The two groups of data seem to have the same slope but different intercepts.  Let's test that by building a model and interpreting the output.  What does the output of the following code tell us about the coefficients of the model for the groups?
+```{r,eval=FALSE}
+syn.model <- lm(y ~ group + x:group,data=syn)
+summary(syn.model)
+```
+
+(d) The following code alters the code used in part (c).
+```{r,eval=FALSE}
+syn.model <- lm(y ~ group + x,data=syn)
+summary(syn.model)
+```
+
+Is the result significantly different than in part (c)?  In what way did the model output differ, and how did that reflect the assumption (in part (d)) that the slopes of the lines are the same?
+
+
+## More Binary Factors as Predictors
+
+
+(a) Create the following synthetic data.
+```{r}
+set.seed(12345)
+x <- runif(500,0,10)
+noise <- rnorm(length(x),0,0.2)
+ya <- 10 - x + noise
+noise <- rnorm(length(x),0,0.2)
+yb <- 10 - 0.5*x + noise
+syn <- data.frame(x=c(x,x),
+                  y=c(ya,yb),
+                  group=c(rep("a",length(x)),
+                          rep("b",length(x))
+                          )
+                  )
+```
+
+(b) Adapt what you did in exercise 6 to create a linear model of this data taking the groups into account.
+
+

@@ -1,4 +1,2 @@
-# Day 17: Hypothesis Tests
-
-Computationally through experiment and also through hypotheses on distributions, hw 8 and hw 7
+# Day 17: Data Cleaning, Data Imputation
 

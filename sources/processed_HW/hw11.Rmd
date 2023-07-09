@@ -1,6 +1,8 @@
 # The Eleventh Homework: Introducing Classification Problems with k Nearest Neighbors and Decision Trees
 
-*Note!*  Throughout this homework set, you will need to use a train/test split for your data.  I have not always written this into the exercises; it is a basic and expected operation!  Throughout, use a 60/40 random split for train/test splits.  Here's a function that will do this:
+## Aside: Train-Test Split Code
+
+Throughout this homework set, you will need to use a train/test split for your data.  I have not always written this into the exercises; it is a basic and expected operation!  Throughout, use a 60/40 random split for train/test splits.  Here's a function that will do this:
 
 ```{r}
 traintest <- function(df,fraction_train=0.6){

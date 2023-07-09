@@ -1,0 +1,141 @@
+# The Seventh Homework: Normal Distributions and the Central Limit Theorem
+
+## Note on Monte Carlo Methods 
+
+In the following exercises we will use both theory and simulation to compute probabilities.  When theoretical results are achievable, they can provide exact answers ... but they are often difficult to achieve.  With fast computing and an experimental mindset, we can instead simulate an experiment many times and use this to estimate the probability that an event occurs.
+
+When we use simulation with randomness to estimate a deterministic quantity, we say we are using a Monte Carlo method.  These methods date back to the dawn of modern computing and the Manhattan Project.  Stanislaw Ulam and Jon von Neumann were working to estimate properties of neutron diffusion, and devised this idea of converting differential equations into random processes so that they might be simulated.  The idea needed a code name, and Monte Carlo was suggested because a relative of Ulam's enjoyed gambling there.  The name was suggested by Nicholas Metropolis, one of the creators of the Metropolis-Hastings family of algorithms, arguably among the most important algorithms in the sciences today.
+
+Ulam and von Neumann implemented their ideas on the ENIAC machine in 1948, and this was considered the first significant work done by a modern computer.
+
+## Sampling the Normal Distribution
+
+
+(a) Draw a sample of 10000 data points from a normal distribution with mean 0 and standard deviation 4, using the `rnorm` function.  Then create its histogram using `hist`.
+
+(b) Repeat part (a) but use a standard deviation of 1.
+
+(c) Repeat part (a) but use a standard deviation of 0.25.
+
+(d) What can you visually conclude about decreasing the standard deviation of a normal distribution?  *Hint: If it is not clear, make sure that you are reading the scales on the axes.  How wide are your histograms?*
+
+## Using R's Built In Functions to Compute Probabilities: pnorm
+
+
+Suppose that $X$ is a normally distributed random variable with mean 100 and standard deviation 15.
+
+(a) Use `pnorm` to compute the probability that $X$ is less than 120.  Answer:
+```{r,echo=FALSE}
+pnorm(120,mean=100,sd=15)
+```
+
+(b) Now compute the probability that $X$ is between 90 and 120.  Answer:
+```{r,echo=FALSE}
+pnorm(120,mean=100,sd=15) - pnorm(90,mean=100,sd=15)
+```
+(c) Compute the probability that $X$ is greater than 104.  Answer:
+```{r,echo=FALSE}
+1-pnorm(104,mean=100,sd=15)
+```
+
+## Simulation to Estimate Probability
+
+In this problem we will investigate how well a random sample from a normal distribution can be used to mimic the results from Exercise 2.
+
+(a) I'll draw a large sample from the appropriate normal distribution and then compute the probability that $X$ is less than 94.  Adapt my code to estimate the answer to 2a from a large sample.
+```{r}
+X <- rnorm(1e5,mean=100,sd=15)
+length(which(X<94))/length(X)
+```
+
+(b) Adapt the code from 3a to estimate the answer to 2b.
+
+(c) Adapt the code from 3a to estimate the answer to 2c.
+
+(d) How well do your answers in 3abc compare to the corresponding results in 2abc?  How do you expect that would change if the sample size were different?
+
+
+## Simulating the Sampling Distribution for a Statistic
+
+
+In this example we will estimate the sampling distribution of the mean for a given sample size.  We can do this with a repeated experiment, and the exercise will step you through that.
+
+(a) Identify or create a hypothetical population to sample from.  In this exercise, execute the following code to create your population:
+```{r}
+set.seed(1234)
+population <- rexp(1e4,rate=0.5)
+```
+
+(b) Write a function to draw a sample from the population and make a measurement on the sample (this is our statistic).  You should clarify whether the sampling is done with or without replacement.  In this exercise, our measurement is the sample mean and sampling is done without replacement.  Execute the following code to create your statistic:
+```{r}
+statistic <- function(sample_size) {
+  x <- sample(population,sample_size)
+  return(mean(x))
+}
+```
+Compute `statistic(30)` several times.  You should get a different value each time but they should be relatively similar.
+
+(c) Simulate performing the sample + statistic experiment many times.  Execute the following code to simulate applying our statistic for a sample of size 30, repeated 1000 times.
+```{r}
+data <- sapply(rep(30,1000),statistic)
+```
+
+(d) Compute the means of `population` and `data`.  How do they compare?
+
+(e) Estimate a probability!  What is the probability that a sample of size 30 drawn from `population` has a sample mean of 3.2 or greater?  Answer:
+```{r,echo=FALSE}
+length(which(data>=3.2))/length(data)
+```
+
+(f) Let's suppose we go to this population in the real world and draw a population of size 30.  We compute the sample mean for this population and find it is 3.22.  In part (e), your probability should be very low, much less than 1%.  Our hypothesis in this problem was that the population had a certain distribution.  Under this hypothesis, the probability of ever seeing a sample of size 30 with mean greater than 3.2 is vanishingly small.  So... what should we conclude about our hypothesis about the population?
+
+*Note: The Central Limit Theorem would tell us everything we need to know in this example, because it deals with the sample mean as the statistic.  So why go through this procedure?  Well, what if the statistic is not the sample mean?  That thought calls for another exercise...*
+
+## Simulate the Sampling Distribution for the Maximum Statistic
+
+
+(a) Create a hypothetical population using the code
+```{r}
+set.seed(1234)
+population <- rexp(1e5,rate=0.5)
+```
+
+(b) Write a statistic function that draws a random sample without replacement from the population, and computes the maximum value in the sample.
+
+(c) Simulate sampling + statistic 1000 times for a sample of size 50.
+```{r,echo=FALSE}
+statistic <- function(n) {
+  x <- sample(population,n)
+  return(max(x))
+}
+data <- sapply(rep(50,1000),statistic)
+```
+
+(d) Compare the maximum values of `population` and `data`.  How do they compare?
+
+(e) What is the probability that the maximum value in a sample is less than 5?
+```{r,eval=FALSE}
+length(which(data<5))/length(data)
+```
+
+(f) We draw a sample of size 50 from the population and find that the maximum value is 4.8.  What should we conclude about our hypothetical population?
+
+
+## Using the Central Limit Theorem
+
+
+Suppose that $X$ is an exponential random variable with rate parameter 0.5.  Suppose that we draw a sample of size $n=100$ and compute its mean.
+
+(a) The sampling distribution is a normal distribution.  What are its mean and standard deviation?
+
+(b) Using the information from part (a), compute the probability that the sample mean is greater than 2.4.  Answer:
+
+```{r,echo=FALSE}
+sample_mean <- 2
+sample_sd <- 2/sqrt(100)
+1-pnorm(2.4,mean=sample_mean,sd=sample_sd)
+```
+(c) We computed a probability in (b) using a theoretical result.  How well does this agree with a simulated result?  Using this scenario and the simulation technique in exercise 4, estimate the probability that the sample mean is greater than 2.4.  How well does your simulated result agree with the theoretical result?
+
+
+

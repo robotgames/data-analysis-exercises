@@ -1,2 +1,242 @@
-# Day 19: Linear Models With Factor Predictors
+# Day 19: Random Variables and Hypotheses
+
+## Box-Ticket Model
+
+
+In this exercise you'll get some practice creating a box-ticket model of a population.  We are making a single measurement of a population, and the result of the measurement is one of three letters, `a`, `b`, and `c`.  Our **hypothesis**, based on comparisons to populations we believe to be similar, is that the population is 50% `a`, 35% `b`, and 15% `c`.
+
+(a) Create a box of tickets (or deck of cards, however you want to think about it!) that represents the population.  *Hint: the `rep` command in R is useful here.*
+```{r,echo=FALSE}
+deck <- c(rep('a',50),rep('b',35),rep('c',15))
+```
+
+
+(b) Draw a sample with replacement of size 1000 from the population.  Use `table` to check the proportions of each of the outcome categories.  They should be approximately the same as the hypothesized proportions above.
+```{r,echo=FALSE}
+table(sample(deck,1000,replace=TRUE))
+```
+
+
+(c) Write a function that draws a random sample with replacement from the population and counts the number of `a` in the sample.  Your function should take the sample size `n` as input, and should return the number of category `a` in the sample.
+```{r,echo=FALSE}
+draw_sample <- function(n) {
+  my_sample <- sample(deck,n,replace=TRUE)
+  return(length(which(my_sample=='a')))
+}
+```
+
+
+(d) Using your function from (c) above, draw a sample of size 50 from the population, 1000 times, recording the number of `a` for each of the samples in a vector called `a_counts`.  Create a histogram for `a_counts`.  Answer:  Your histogram should look roughly like the following, but will differ slightly because of the random sampling.
+```{r,echo=FALSE}
+a_counts <- sapply(rep(50,1000),draw_sample)
+hist(a_counts,breaks=30)
+```
+
+
+(e) You can use `a_counts` to estimate probabilities related to the number of `a` in samples, under your hypotheses on the population.  What is the probability that more than 30 measurements in a sample of size 50 are `a`?  Answer: Approximately
+```{r,echo=FALSE}
+length(which(a_counts>30))/length(a_counts)
+```
+
+
+(f) A researcher draws a sample of size 50 from the actual population.  She finds 16 `a` in her sample.  You examine her data collection techniques and they seem sound.  Interpret her results.  What is the likelihood that *given the stated hypothesis* on the population, the researcher would draw a sample with 16 or fewer 'a' in it?  What do you conclude from this probability about your hypotheses on the population or about her sample?  Answer:  The likelihood is approximately
+```{r,echo=FALSE}
+length(which(a_counts<= 16))/length(a_counts)
+```
+This is far less than 1%.  Thus, it seems less unlikely that we drew an extreme sample, and more likely that our hypothesis is flawed.  Thus we reject the original hypothesis about the proportions of `a` int he population.
+
+
+## Probability With Common Distributions - Binomial
+
+
+Our observation teams visit sites and record the presence or absence of a particular species.  They only record the *presence* of a species and not a species count because presence of this species is usually determined by sound (birdcalls).  The species is rarely sighted, and it is thus difficult to get an accurate count.
+
+We have hypothesized that at a randomly selected site in our geographic region, there is a 15% chance that the species will be present.  Presence at any site is independent from any other site, and the likelihood of presence is the same at every site.
+
+Suppose that we decide to randomly sample 70 of the 6405 sites available to us, and we record the presence or absence of the species.
+
+(a) What common probability distribution models this scenario (binomial, normal, geometric, poisson, other)?  Explain, and note any parameters for hte distribution.  Use this distribution to compute probabilities for the remainder of this exercise.
+
+(b) If we sample 70 sites, what is the probability that fewer than 7 have the species present?  Answer:
+```{r,echo=FALSE}
+# sum(dbinom(0:6,70,0.15))
+pbinom(6,70,0.15)
+```
+
+
+(c) If we sample 70 sites, about what number of sites should have the species present?  Answer:
+```{r,echo=FALSE}
+0.15*70
+# mean(rbinom(1000,70,0.15))
+```
+
+
+(d) We need to create a sample of sites.  One requirement is that, with 95% probability, there should be at least 5 sites in the sample that have this species present.  How large should the sample be in order to meet this requirement?  Make sure to give the smallest sample size that meets this requirement; sampling can be costly!  Answer: Should be about 58 or 59.  59 to be safe!
+```{r,echo=FALSE}
+sample_size <- 59
+data <- rbinom(10000,sample_size,0.15)
+# length(which(data>= 5))/length(data)
+```
+
+
+(e) Farmers in the area have aging irrigation equipment which has been leaking more over the last couple of years, creating additional habitat for our species.  We are concerned that the hypothesized 15% presence value may no longer be valid.  We randomly sample 60 sites in the region and find that our species is present at 14 of them.  Discuss.  In particular, does our concern about the validity of the 15% have a basis in our collected evidence?
+
+## Probability Calculations With Common Distributions - Geometric
+
+
+Consider the scenario from the previous problem, with a 15% chance that the species is present at a randomly selected site.  We would like to sample sites until we find the first with the species present.
+
+(a) What common probability distribution models this scenario (binomial, normal, geometric, poisson, other)?  Explain.  Use this distribution for the remainder of this exercise.
+
+(b) What is the probability that we find the species present at a site on or before the fifth site sampled?  Answer:
+```{r,echo=FALSE}
+pgeom(5,0.15)
+```
+
+
+(c) What is the probability that we do not find the species present at the first 20 sites?  Answer:  Fairly low, about
+```{r,echo=FALSE}
+1 - pgeom(20,0.15)
+```
+
+
+
+(d) What is the probability that we find the species present at the 21st site or a later site surveyed?
+
+(e) How are parts (c) and (d) related?
+
+## Probability Calculations With Common Distributions - Poisson
+
+
+You and your team are studying the locally maintained roads in Ventura County.  Based on data from the county, you determine that the number of serious defects per mile of road has a Poisson distribution with mean 2.6.
+
+(a) For a randomly selected mile of road in Ventura County, what is the probability that it has 3 defects?  Answer:
+```{r,echo=FALSE}
+dpois(3,2.6)
+```
+
+
+(b) For a randomly selected mile of road in Ventura County, what is the probability that it has 3 or more defects?  Answer:
+```{r,echo=FALSE}
+1 - ppois(2,2.6)
+```
+
+
+(c) There is a 10 mile stretch of road in Ventura County that is notorious among locals for its number of potholes.  Your team surveys it and finds 27 defects.  What is your conclusion?
+
+(d) Your team randomly samples 30 mile long stretches of road in Ventura County.  What is the probability that 20 or more of them have 0 or 1 defects?  *Hint: There are two random variables here.  The first is the number of defects that a mile of road has; it is a Poisson variable.  The second is the number of samples that have 0 or 1 defects, out of the 30 samples taken.  What sort of variable is this second one?  And there are a couple of ways to try to answer this: theoretical computation or simulation.*
+
+## Probability Distributions - ZIP
+
+
+A **count** variable is a random variable whose outcomes are counting numbers: 0, 1, 2 and so on.  Poisson random variables are a good starting point for modeling count distributions, but they have one major defect: the mean and variance are always exactly the same.  As it turns out, real world counts don't always play this nicely.
+
+Poisson random variables also fail to capture some aspects of actual counts.  For bird counts, there is often an observation barrier that must be overcome; the observers have to *observe* the birds to be able to count them.  There are many reasons why an observer might fail to observe a species: weather conditions that cause the species to seek shelter, migration patterns, environmental conditions like rain that simply make observations more difficult.  Thus bird counts often have many more zeroes than a Poisson distribution would predict.    Count distributions that "act like" Poisson variables but have many more zeroes are called *zero-inflated Poisson distributions*, or ZIPs.
+
+(a) A simple way to create a ZIP is to set a value between 0 and 1, `a`.  With probability `a`, the count is zero, and otherwise the count is a Poisson distribution.  Your goal here is to write a function that simulates this variable by creating samples.  Write a function.  It should take three values as inputs: `n`, the sample size; `a`, the probability of immediately throwing a 0, and `lambda`, the mean for the Poisson distribution when the outcome is not immediately 0.  Your function should return a counting number 0, 1, 2, or higher.  You can begin with the following framework and replace the empty comment lines with code:
+
+```{r,eval=FALSE}
+ZIP_sample <- function(n,a,lambda) {
+  # Create a vector of 0's of length n, store in sample_data
+  #
+  for (i in 1:n) {
+    zero_decider <- runif(1)
+    if (zero_decider > a) {
+      # generate a Poisson sample, length 1, store in x
+      #
+      sample_data[i] <- x
+    }
+  }
+  # Now return sample_data
+  #
+}
+```
+```{r,echo=FALSE}
+ZIP_sample <- function(n,a,lambda) {
+  # Create a vector of 0's of length n, store in sample_data
+  sample_data <- rep(0,n)
+  for (i in 1:n) {
+    zero_decider <- runif(1)
+    if (zero_decider > a) {
+      # generate a Poisson sample, length 1, store in x
+      x <- rpois(1,lambda)
+      sample_data[i] <- x
+    }
+  }
+  # Now return sample_data
+  return(sample_data)
+}
+```
+
+(b) Use your function from part (a) to draw a sample of size `n=100` from a ZIP with `a=0.4` and `lambda=3`.  Create the histogram.  Does the sampler seem to be doing what it should?  How can you tell?  Answer:  The histogram appears as
+```{r,echo=FALSE}
+data <- ZIP_sample(100,0.4,3)
+hist(data,breaks=8)
+```
+
+
+(c) For the ZIP distribution in part (b), what fraction of the sample values should be 0?  Is that fraction higher than 40%, as seen in your histogram?  What should it be, and how do you know?
+
+(d) For the ZIP distribution from part (b), estimate the mean and standard deviation using a sample of size $n=100$.  How do these values compare to the mean and standard deviation of a Poisson distribution with parameter $\lambda=3$?  Is that expected?  Answer: The mean and standard deviation of the data used to create the histogram in (b) are
+```{r,echo=FALSE}
+mean(data)
+sd(data)
+```
+and the mean and standard deviation of a Poisson variable with mean 3 are
+```{r,echo=FALSE}
+pdata <- rpois(1000,3)
+mean(pdata)
+sd(pdata)
+```
+
+## Sampling the Normal Distribution
+
+
+(a) Draw a sample of 10000 data points from a normal distribution with mean 0 and standard deviation 4, using the `rnorm` function.  Then create its histogram using `hist`.
+
+(b) Repeat part (a) but use a standard deviation of 1.
+
+(c) Repeat part (a) but use a standard deviation of 0.25.
+
+(d) What can you visually conclude about decreasing the standard deviation of a normal distribution?  *Hint: If it is not clear, make sure that you are reading the scales on the axes.  How wide are your histograms?*
+
+## Using R's Built In Functions to Compute Probabilities: pnorm
+
+
+Suppose that $X$ is a normally distributed random variable with mean 100 and standard deviation 15.
+
+(a) Use `pnorm` to compute the probability that $X$ is less than 120.  Answer:
+```{r,echo=FALSE}
+pnorm(120,mean=100,sd=15)
+```
+
+(b) Now compute the probability that $X$ is between 90 and 120.  Answer:
+```{r,echo=FALSE}
+pnorm(120,mean=100,sd=15) - pnorm(90,mean=100,sd=15)
+```
+(c) Compute the probability that $X$ is greater than 104.  Answer:
+```{r,echo=FALSE}
+1-pnorm(104,mean=100,sd=15)
+```
+
+
+
+
+## Using the Central Limit Theorem
+
+
+Suppose that $X$ is an exponential random variable with rate parameter 0.5.  Suppose that we draw a sample of size $n=100$ and compute its mean.
+
+(a) The sampling distribution is a normal distribution.  What are its mean and standard deviation?
+
+(b) Using the information from part (a), compute the probability that the sample mean is greater than 2.4.  Answer:
+
+```{r,echo=FALSE}
+sample_mean <- 2
+sample_sd <- 2/sqrt(100)
+1-pnorm(2.4,mean=sample_mean,sd=sample_sd)
+```
+(c) We computed a probability in (b) using a theoretical result.  How well does this agree with a simulated result?  Using this scenario and the simulation technique in exercise 4, estimate the probability that the sample mean is greater than 2.4.  How well does your simulated result agree with the theoretical result?
+
+
 

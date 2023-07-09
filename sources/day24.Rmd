@@ -1,0 +1,3 @@
+# Day 24: t-tests
+
+and p-values, Type 1 and 2 errors

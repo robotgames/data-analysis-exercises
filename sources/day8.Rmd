@@ -1,1 +1,242 @@
 # Day 8: EDA - The Basic Plots
+
+## Summary Statistics
+
+Load the plant growth data set in R with
+
+```{r}
+data("PlantGrowth")
+```
+
+(a) Summarize this data set with `summary`.
+
+```{r,echo=FALSE,eval=FALSE}
+summary(PlantGrowth)
+```
+
+
+(b) Find the width of the range of the weight data (max - min).  Answer:
+
+```{r,echo=FALSE}
+my_range <- max(PlantGrowth$weight)-min(PlantGrowth$weight)
+my_range
+```
+
+
+(c) Estimate the standard deviation of the weight variable using the range / 4 estimate.  Answer:
+
+```{r,echo=FALSE}
+my_range/4
+```
+
+
+(d) Compute the standard deviation of the weight variable.  How close is your estimate in part (c)?  Answer:
+
+```{r,echo=FALSE}
+sd(PlantGrowth$weight)
+```
+
+(e) Compute the median weights of each of the individual groups.  You will have to filter to isolate each group's weight data first.  For example, the median weight for the control group is
+
+```{r}
+control_group_weight <- PlantGrowth$weight[ PlantGrowth$group == "ctrl" ]
+quantile(control_group_weight,0.50) # or median(control_group_weight)
+```
+
+## Using a Table
+
+Use `table()` to summarize the `group` variable in the `PlantGrowth` data set from the previous exercise.  Answer:
+
+```{r,echo=FALSE}
+library(kableExtra)
+library(tidyverse)
+kable(table(PlantGrowth$group))
+```
+
+## Summarizing Data by Group
+
+In this exercise we will use the `group_by` and `summarize` commands in the `tidyverse` to summarize a variable by group.  Let's work with the iris data set.  Load this and the `tidyverse` package with 
+
+```{r}
+data("iris")
+library("tidyverse")
+```
+
+(a) Let's see some example code.  I have added some empty comments in this code.  Copy it, and add comments describing what the line below each comment is doing.
+ 
+```{r}
+# 
+grouped_iris <- group_by(iris,Species)
+# 
+summarized_data <- summarize(grouped_iris,median = median(Petal.Length))
+# 
+summarized_data
+```
+ 
+ (b) As it turns out, you can perform more than one summarizing measurement at once.  Repeat part (a) for the following code:
+
+```{r}
+# 
+grouped_iris <- group_by(iris,Species)
+# 
+summarized_data <- summarize(grouped_iris,
+                             median = median(Petal.Length),
+                             std.dev = sd(Petal.Length),
+                             group_size = n())
+# 
+summarized_data
+``` 
+ 
+ (c) And, as it turns out, you can use the magic of pipes in the `tidyverse` to make all of this flow very nicely.  
+ 
+ Pipes connect data operations.  Each data operation must take a data frame (or compatible object) as the first input and must produce a data frame as output.  You'll notice after a bit that many functions in the tidyverse were written with the structure `function_name(data_frame,...)` so that they may be used in pipes.
+ 
+ When writing the system of pipes, you don't need to explicitly write the data frame input in each data operation along the way; the pipes automatically pass the data set in as the first input.  This helps keep your environment cleaner and stores fewer variables in memory.  Looking at the code above, did I *really* need to store the grouped data in `grouped_iris`, then pass it into the `summarize` function?  Nope!  Here's the code from part (a) using pipes:
+ 
+```{r}
+iris %>% 
+  group_by(Species) %>%
+  summarize(median = median(Petal.Length)) %>%
+  print()
+```
+
+Technically, you could even leave off the last pipe and the `print` statement at the end.
+
+So, for your exercise here in part (c), use pipes to rewrite the code from part (b).
+
+(d) Use pipes to create a table of summary values for the two sepal variables grouped by species in the iris data set.  Your table should provide the min and max for each of these measurements, grouped by species.  Your table should use meaningful column names for readability.  Answer:
+
+```{r,echo=FALSE}
+iris %>%
+  group_by(Species) %>%
+  summarize(Minimum.Sepal.Length = min(Sepal.Length),
+            Maximum.Sepal.Length = max(Sepal.Length),
+            Minimum.Sepal.Width = min(Sepal.Width),
+            Maximum.Sepal.Width = max(Sepal.Width)) %>%
+  kable()
+```
+
+## Introducing ggplot
+
+In this exercise you'll get some practice going beyond the basic R `hist` function to use the histogram geometry from the `tidyverse`.  We'll work with the `iris` data set,
+
+```{r,eval=FALSE}
+data("iris")
+library(tidyverse)
+```
+
+(a) The following code uses `ggplot` to create a histogram.  Copy the code and fill in the comments describing what the commands are doing.
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length)) + # 
+  geom_histogram(fill="blue",col="orange") + #
+  ggtitle("Histogram: Petal Length in the Iris data set") #
+```
+
+(b) What happens to the plot if you change the `x=Petal.Length` argument to `y=Petal.Length`?  *Note:* Generally we prefer the `y` axis in histograms to be the frequency axis.
+
+(c) Add a better label to the `x`-axis with the `xlab` function.  Remember that in `ggplot`, to add a component to a plot you *literally* add the command to your expression with a `+` sign.
+
+(d) Finish your plot.  Adjust the colors and labels, add more labels, and generally clean up your histogram to make it more presentable.
+
+## Aside - Basic Plots
+
+In these exercises you'll be considering how to graphically present relationships between variables.  For each pair, there is a common "go-to" plot that we'll often begin with:
+
+* numerical versus numerical: scatterplot 
+* numerical versus categorical: histograms or boxplots or violin plots, visually separated with fills or panels
+* categorical versus categorical: bar plots, separated with fills or panels
+
+A reminder about a bit of terminology: "y versus x" means "put y on the vertical axis and x on the horizontal axis". 
+
+## Plotting Simple Relationships
+
+(a) Execute the following code chunk to create some data.
+
+```{r}
+x <- seq(from=-1,to=1,length.out=100)
+y1 <- 0.5*x
+y2 <- 1-x^2
+y3 <- x*(x-1)*(x+1)
+df <- data.frame(x=x,y1=y1,y2=y2,y3=y3)
+```
+
+(b) You can create scatterplots of `y1` versus `x` with base R or with `ggplot`.  Here's how!  Execute the following code chunks to see what happens.
+
+Base R:
+
+```{r}
+plot(x,y1)
+```
+
+`ggplot`:
+
+```{r}
+library(ggplot2)
+ggplot(data=df,aes(x=x,y=y1)) + geom_point()
+```
+
+(c) Repeat part (b) to plot `y2` versus `x` and `y3` versus `x`.
+
+(d) You can change the geometry used in `ggplot` to create lines instead of scatterplots.  Plot `y3` versus `x` but use `geom_line()` instead of `geom_point()`.  Answer:
+
+```{r,echo=FALSE}
+df %>% ggplot(aes(x=x,y=y3)) + geom_line()
+```
+
+## Scatterplots and Smoothed Trends
+
+Load the iris data set and the `tidyverse`:
+
+```{r,warnings=FALSE,message=FALSE}
+data("iris")
+library(tidyverse)
+```
+
+(a) You can plot the petal width versus the petal length using `ggplot` and `geom_point` as in the following code chunk:
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point()
+```
+
+Color the points in the scatterplot by adding a `col=Species` option to the `aes` function.  Answer:  Your plot should look like
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width,col=Species)) +
+  geom_point()
+```
+
+(b) You can add a smoothed trend to a scatterplot with `geom_smooth`.  Add this component to the sample plot code from (a).  *Remember: to add a plot component in `ggplot`, you literally add with the `+` sign.*  Answer: Your plot should look like the following
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point() + 
+  geom_smooth()
+```
+
+(c) The smoothed trend by default does not assume a line, but you can make that happen.  Revisit your code in (b) and include the `method="lm"` option in the `geom_smooth` function.  Answer: Your plot should look like
+```{r,echo=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point() + 
+  geom_smooth(method="lm")
+```
+
+(d) Next, try revisiting the code in part (a) and changing the color option `col` in the aesthetic `aes` to `col=Sepal.Length`.  Describe what happens.  In particular, how is this different from using `col` with a categorical variable, and how many numeric variables are now represented in the plot?
+
+*Note: Read the documentation for `geom_smooth` for more options for adding a trend indicator.*
+
+## Boxplots and Violin Plots
+
+We'll work with the iris data set again in this exercise.  Let's compare the petal length and the species variables.  Another way of phrasing this comparison is "What is the petal length, broken down by species?"
+
+(a) Create a boxplot of petal length broken down by species with `ggplot` as in the following code chunk.  State a conclusion from this plot; if the petal length measurement is *blah*, then the species is clearly/probably *other blah*.
+
+```{r,eval=FALSE}
+ggplot(data=iris,aes(x=Petal.Length,y=Species)) +
+  geom_boxplot()
+```
+
+(b) You can add a bit of color to your plot by including `fill=Species` as an option in the `aes` command in `ggplot`.  Try it!
+
+(c) An issue with boxplots is that they do not include a lot of information about the distribution.  You can get something like this effect with violin plots.  Replace `geom_boxplot` by `geom_violin` in the plot in exercise (b) and see what happens!
+
+(d) Now add the `trim=FALSE` option to `geom_violin`.  What happens?  *Note: Read the documentation for `geom_violin` for more information.*

@@ -1,2 +1,145 @@
 # Day 9: EDA - Advanced Plots
 
+## Grouping Plot Elements by Factor Levels
+
+
+In this exercise we'll expand on exercise 6.  One of the issues that we can see in exercise 6 is that we did not break down the plot by species.  An inspection of the data suggests that the "lump" on the left of the petal length histogram is due entirely to one species.
+
+(a) Return to your histogram code in exercise 6.  Remove any `fill` arguments in `geom_histogram`.  Then, add a `fill=Species` argument to the `aes` function inside the `ggplot` function, like `ggplot(data=iris,aes(x=Petal.Length,fill=Species))+...`.  What does this accomplish?
+
+(b) It may be difficult to see where/whether bars are overlapping.  Instead, we can break up the histograms by species into panels.  Add a graphics component `facet_wrap(~Species)` to your graphics command in part (a).  What happens?
+
+(c) Using what you have learned in this exercise and the previous one, create an informative graphic visualizing the sepal length variable in the `iris` data set.  
+
+## Density Plots
+
+
+One of the issues we have noticed with histograms is that the choice for the number of bins can greatly affect the appearance of the histogram.  How do we know what the "best" number of bins will be for a given variable?  Answer: we don't!  This is primarily because we have not defined what "best" should mean in this instance.  
+
+It's often best to produce multiple histograms for a single variable to view it at different "resolutions", and so in a sense, there is no "best" number of bins.  Another approach is to smooth off the histogram, producing a *density* plot.
+
+(a) Return to exercise 6.  Replace `geom_histogram` in the code I wrote there with `geom_density` and plot.  What happens?
+
+(b)  Remove the `fill="orange"` input to `geom_density`.  Then add the input `fill=Species` to the `aes` function in `ggplot`.  What happens?
+
+(c) It may be difficult to see where the density curves for the different species overlap.  We can add transparency to the fill.  Add the input `alpha=0.5` to the `geom_density` function.  What happens?
+
+(d) As an alternative to transparency, we can split the density curves into different panels.  Mimic what we did in exercise 7.
+
+(e) Using what you have learned, produce an informative graphic summarizing the sepal length variable in the `iris` data set.
+
+
+## Facet Wrap
+
+
+In this exercise we'll use the storms data set from the `dplyr` package (part of the `tidyverse`).
+
+```{r}
+library(tidyverse)
+data("storms")
+```
+
+(a) Use `summary` and `head` to explore the storms data set.
+
+(b) Let's make a bar plot for the `status` variable in storms.  I've provided some code to produce a very basic bar plot here:
+
+```{r}
+ggplot(data=storms,aes(y=status)) +
+  geom_bar() +
+  theme_dark()
+```
+
+Based on what you know about `ggplot`, make this plot better.  The fill on the bars should be light to contrast with the dark background, there should be a title, and the axis labels can be improved.  Do it!
+
+(c) Make a bar plot for the `category` variable in storms.  Make it look great!
+
+(d) It's not immediately clear from the two bar plots we have made what the connection - if any - is between the `status` and `category` variables.  Add a `facet_wrap(~status)` plot element to the bar plot you created in part (c).  Make sure you understand what is happening with the plot.  Then explain what the connection is between the `status` and `category` variables.
+
+
+## Density Plots by Factor Level
+
+Create a density plot for the petal length variable in iris, broken down by species.  Plot the density plots on the same axes, with different colors and with transparency so that we can see where they overlap.  *Note: Review homework 4.  This plot compares a numeric variable and a categorical.*
+
+
+## More Density Plots by Factor Level With Facet Wrap
+
+
+Repeat exercise 3 but separate the density plots by using the `facet_wrap` function in `ggplot`.  *Note: Review homework 4, exercise 7.*
+
+
+## Scatterplots - Handling Too Many Data Points
+
+
+We may encounter a number of practical problems when creating scatterplots.  A common issue is that we may simply have too many data points.  There are a number of ways to work around that, and in this exercise we'll look at one.
+
+Load the storms data set from the `dplyr` package in the `tidyverse`.  You can accomplish that with
+
+```{r}
+library(tidyverse)
+data ("storms")
+```
+
+(a) First, let's visualize the problem.  Use `geom_point` with `ggplot` as you did in exercise 1a to create a scatterplot of wind versus pressure.  *Note:  You should see something that looks a bit like horizontal stripes in your data.  This means that the variable on the vertical axis has been rounded; in this case, examination of the wind variable suggests that it has been rounded to multiples of 5.*
+
+(b) There are too many points in the scatter plot.  Many of them overlap.  We'll combine the `cut` function with `group_by` and `summarize` in a clever way to bin the horizontal axis.  In this piece of the exercise, you should create a new categorical variable, `bin_pressure`, by using the `cut` function with `breaks=30`.  We'll also rename the levels of `bin_pressure` so the plot will be a little nicer later on.  *Note: Review homework 4, exercise 10.*
+
+```{r}
+storms$bin_pressure <- cut(storms$pressure,breaks=30)
+new_names <- seq(min(storms$pressure),max(storms$pressure),length.out=30)
+levels(storms$bin_pressure) <- round(new_names)
+```
+
+(c) At this point we have several options for plotting the binned data.  In this part of the exercise, try creating a boxplot with `x=bin_pressure` and `y=wind` in the aesthetic in `ggplot`.  What happens?  Does this graph clarify anything about the data which was unclear from the scatterplot?  For instance, can you determine which pressure values lead to more extreme wind values?  Answer: Your plot should look like the following.  The `x`-axis labels are a mess if you don't rotate them.  You can do that by adding a component like `theme(axis.text.x = element_text(angle = 90, vjust=0.5,hjust=-0.2))` to your `ggplot` code.
+```{r,echo=FALSE}
+ggplot(data=storms,aes(x=bin_pressure,y=wind)) +
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5,hjust=-0.2))
+```
+
+
+(d) Another option for plotting is to summarize first.  You can build a summarized data set using
+
+```{r,eval=FALSE}
+sdata <- storms %>%
+  group_by(bin_pressure) %>%
+  summarize(mean_pressure = mean(pressure),
+            mean_wind=mean(wind),
+            n=n())
+```
+
+You can then plot using the summarized data:
+
+```{r,eval=FALSE}
+ggplot(data=sdata,aes(x=mean_pressure,y=mean_wind)) +
+  geom_point()
+```
+
+This gives a very clear indication of trend (but it ignores information about extreme values).  Add the `size=n` option to the aesthetic.  What do the sizes of your points now represent?
+
+(e) You can produce a ribbon graph with a bit more work in summarizing (see `geom_ribbon` in the documentation).  Re-create the `bin_pressure` variable using 40 breaks.  Then, summarize as before, but instead of creating a `mean_wind` variable, create a `min_wind` variable with the `min` function and a `max_wind` variable with the `max` function.  Once you have this summarized data set, produce a plot.  `ggplot` should have an aesthetic with `x=mean_pressure`, `ymin=min_wind`, and `ymax=max_wind`, and the geometry should be `geom_ribbon`.  What does this ribbon plot tell you about the relationship between wind speed and pressure?  Answer: Here is my plot.  I added a `mean_wind` variable in the summary and a `geom_smooth` geometry to give a sense of the trend.
+```{r,echo=FALSE}
+storms$bin_pressure <- cut(storms$pressure,breaks=30)
+new_names <- seq(min(storms$pressure),max(storms$pressure),length.out=30)
+levels(storms$bin_pressure) <- round(new_names)
+sdata <- storms %>%
+  group_by(bin_pressure) %>%
+  summarize(mean_pressure = mean(pressure),
+            mean_wind=mean(wind),
+            min_wind=min(wind),
+            max_wind=max(wind),
+            n=n())
+ggplot(data=sdata,aes(x=mean_pressure,y=mean_wind,ymin=min_wind,ymax=max_wind)) +
+  geom_ribbon(fill="red",alpha=0.6) + 
+  geom_smooth(size=1.0,color="black") + 
+  theme(axis.text.x = element_text(angle = 45))
+  
+```
+
+
+(f) You can also produce a binned hexagon plot for a scatterplot.  First, install the package `hexbin`.  Load the `tidyverse` and `storms` data as above.  Then try executing the following.  Interpret the plot you are seeing.  How does it compare to the ribbon plot?  Does it provide any extra infromation?  Is anything about it more difficult to read?
+
+```{r,eval=FALSE}
+ggplot(data=storms,aes(x=pressure,y=wind)) + 
+  geom_hex(binwidth=c(5,5))
+```
+

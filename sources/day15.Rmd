@@ -1,3 +1,27 @@
-# Day 15: Simulations Under Hypotheses
+# Day 15: DW - Factors and Date-Times
 
-hw 6 ?
+## Working with factors
+
+## Factor mismatches with levels
+
+## Combining factors
+
+## Ordered factors
+
+## Changing the levels in factors
+
+
+## Working with date-times
+
+## Formatting date-times
+
+## Extracting information from date-times
+
+## Timelines
+
+## Timelines: Durations
+
+## Timelines: Intervals
+
+## Timelines and time series data
+

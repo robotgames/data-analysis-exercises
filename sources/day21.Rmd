@@ -1,0 +1,19 @@
+# Day 21: Estimating Parameters
+
+## Confidence Intervals for Population Means
+
+
+Compute the 80% and 95% confidence intervals for the population mean for a sample of size $n=63$ with a sample mean of $\overline{x}=10$ and a sample standard deviation of $s=1.2$.
+
+
+## Working With Confidence Intervals
+
+
+You have been handed summary statistics for a sample from a population.  It has size $n=42$ with sample mean $\overline{x}=1.4$ and sample standard deviation $s=15$.
+
+(a) Compute the 95% confidence interval estimate for the population mean.
+
+(b) Your team leader sees your calculations and immediately expresses concern.  She notes that the population values collected are length measurements and can only be positive values.  Why is your confidence interval concerning?
+
+(c) After some error checking, it turns out that the sample standard deviation is actually $s=0.15$.  Recompute the 95% confidence interval.  And, with this new value, compute the probability that a sample mean will be negative.  Is this probability low enough to alleviate the concern expressed by the team leader in part (b)?
+

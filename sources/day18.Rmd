@@ -1,5 +1,21 @@
-# Day 18: Modeling Relationships
+# Day 18: Samples, Populations, Statistics
 
-graphical, linear models, and so on
+## Thinking About Populations
 
-hw 9
+In each part of this exercise, I'll describe a population that researchers would like to study.  Your task is to criticize and improve the descriptions.  In particular, when describing a population, I would like a litmus test for individuals: when faced with an individual, I would like to use the description to determine whether the individual is in the population or not.
+
+But as the song says, you can't always get what you want.  Sometimes, we will have to settle for a population description working *pretty well*, *most of the time*.
+
+So, for each part, first give one or two issues with the definition of the population as written.  Then, rewrite the description of the population to be more precise.
+
+(a) All students at our university.
+
+(b) Older people in Ventura County, California.
+
+(c) All members of the species Anna's hummingbirds in Ventura County.  (See [https://sora.unm.edu/sites/default/files/journals/condor/v059n02/p0118-p0123.pdf](https://sora.unm.edu/sites/default/files/journals/condor/v059n02/p0118-p0123.pdf) for an understanding of why this might be an especially problematic population.)
+
+(d) Underperforming espresso machines in Starbucks franchises in California.
+
+(e) All people on our campus who are in love.
+
+(f) All people on our campus who are really smart.

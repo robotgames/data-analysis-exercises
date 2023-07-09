@@ -81,7 +81,7 @@ To demonstrate that you have correctly constructed the variables in your data fr
 (b) Plot `y1` versus `x`.
 (c) Plot `y2` versus `x`.
 
-## Using read.csv to Load Data Frames from URLs
+## Using read.csv to Load Data Frames from URLs (Keep or split among other assignments?)
 
 **Loading data from those interwebs** - You can easily load a data set stored remotely as a `.csv` file using the standard R functions.  In this exercise you'll load a machine hardware data set and perform some elementary cleaning operations.  This is a long exercise, but has a great deal of practical information.
 
@@ -390,4 +390,6 @@ mtcars %>% mutate(cyl=factor(cyl),gear=factor(gear)) %>%
   select(cyl,gear) -> temp
 kable(table(temp$cyl,temp$gear),format="latex")
 ```
+
+
 

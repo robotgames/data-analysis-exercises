@@ -1,0 +1,42 @@
+# Day 34: Clusters with k-Means
+
+## k Means Algorithm for Clustering
+
+In this exercise we'll use the k-means algorithm to cluster some synthetic data.
+
+(a) Execute the following code block to create some synthetic data.
+```{r,echo=TRUE}
+set.seed(1234)
+x <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+y <- c(rnorm(100,mean=-2),rnorm(150,mean=2))
+df <- data.frame(x=x,y=y)
+```
+
+(b) Plot the synthetic data from (a).  Is it clear that there are two clusters?  Answer:
+```{r}
+library(ggplot2)
+ggplot(data=df,aes(x=x,y=y)) +geom_point()
+```
+
+(c) Use `kmeans` to create a model of the clusters.  Use the option `centers=2`.
+```{r}
+km.model <- kmeans(df,centers=2)
+```
+
+(d) Attach the cluster information to the data frame `df`.  My code looks like the following; yours may differ depending on the names you chose for your variables.
+```{r,echo=TRUE}
+df$cluster <- factor(km.model$cluster)
+```
+
+(e) Now let's plot the data again, but this time color the points by cluster.  Answer:
+```{r}
+ggplot(data=df,aes(x=x,y=y,col=cluster)) + geom_point()
+```
+
+(f) Use the `cluster` library to visualize the clusters.  My code:
+```{r,echo=TRUE}
+library(cluster)
+clusplot(df[,1:2],km.model$cluster)
+```
+
+*Note that clusplot transforms the data somewhat, so the data points in the two plots may look numerically different, but qualitatively similar.*

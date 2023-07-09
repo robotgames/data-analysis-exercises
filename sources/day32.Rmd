@@ -1,0 +1,246 @@
+# Day 32: Naive Bayes and Tree Models
+
+## k Nearest Neighbors
+
+
+In this exercise we will create a k nearest neighbors model using synthetic data.
+
+(a) Execute the following code to create a data set.
+
+```{r}
+set.seed(1234)
+x <- sort(runif(500,-10,10))
+ya <- rnorm(200,mean=2.5)
+yb <- rnorm(200,mean=0)
+yc <- rnorm(100,mean=0.8)
+group <- c(rep("a",length(ya)),
+           rep("b",length(yb)),
+           rep("c",length(yc)))
+df <- data.frame(x=x,y=c(ya,yb,yc),group=factor(group))
+```
+
+(b) Train/test split.
+```{r,echo=FALSE}
+temp <- traintest(df)
+train <- temp$train
+test <- temp$test
+```
+
+(c) Use `ggplot` to create a plot of `y` versus `x` with points colored by `group`.  *You didn't use the whole data frame, did you?  You just plotted the `train` set even though I didn't explicitly say that, right?  Because plotting the whole data set would be bad...*  Answer:
+```{r,echo=FALSE}
+library(ggplot2)
+ggplot(data=train,aes(x=x,y=y,col=group)) + geom_point()
+```
+
+(c)  Which groups seem most likely to have data points confused with one another by the k nearest neighbors algorithm?  Why?
+
+(d) Create a k nearest neighbors model with `k=9` and make predictions for the `test` set classes.  Make sure to normalize predictors first.  What is your accuracy?  Answer:
+```{r,echo=FALSE}
+temp <- train
+temp$group <- NULL # You'll have to do this for the target variable in temp
+M <- as.vector(lapply(temp,max))
+m <- as.vector(lapply(temp,min))
+normalize <- function(x) {
+  y <- as.data.frame(
+    lapply(1:ncol(x), 
+           function(z) (x[[z]]-m[[z]])/(M[[z]]-m[[z]]))
+  )
+  names(y) <- names(x)
+  return(y)
+}
+library(class)
+c.test <- test$group
+test$group <- NULL
+test <- normalize(test)
+c.train <- train$group
+train$group <- NULL
+train <- normalize(train)
+c.model <- knn(train,test,c.train,k=9)
+sum(c.model == c.test)/length(c.test)
+```
+
+
+(e) Create a confusion matrix for this model.  Which misclassifications are most frequent?  My confusion matrix:
+```{r,echo=FALSE}
+table(c.model,c.test)
+```
+
+## k Nearest Neighbors - Applying the Confusion Matrix
+
+ In exercise 3 we will work with a large data set attempting to predict whether a student will dropout, remain enrolled, or graduate at the end of the course.  For classification problems, the reponse variable may be called the *target* variable, as in the data set below.  You can find out more about this data set [here](https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)
+ 
+(a) Import the data by executing the following code chunk.
+
+```{r}
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/retention.csv",sep=";")
+df$Target <- factor(df$Target)
+```
+
+(b) Train/test/split, separate out the class (target) variable, and normalize the remaining variables.
+```{r,echo=FALSE}
+temp <- traintest(df)
+train <- temp$train
+test <- temp$test
+temp <- train
+temp$Target <- NULL # You'll have to do this for the target variable in temp
+M <- as.vector(lapply(temp,max))
+m <- as.vector(lapply(temp,min))
+normalize <- function(x) {
+  y <- as.data.frame(
+    lapply(1:ncol(x), 
+           function(z) (x[[z]]-m[[z]])/(M[[z]]-m[[z]]))
+  )
+  names(y) <- names(x)
+  return(y)
+}
+library(class)
+c.test <- test$Target
+test$Target <- NULL
+test <- normalize(test)
+c.train <- train$Target
+train$Target <- NULL
+train <- normalize(train)
+```
+
+(c) Create a k nearest neighbors model for this data using k=25.
+```{r,echo=FALSE}
+c.model <- knn(train,test,c.train,k=25)
+sum(c.model == c.test)/length(c.test)
+```
+
+(d) Create a confusion matrix.
+```{r,echo=FALSE}
+table(c.model,c.test)
+```
+
+(e) Using your confusion matrix... Which category is misclassified most often?  Can you tell which category the model tends to predict most often for this high misclassification category?
+
+## Comparing k Nearest Neighbors and GLM for Binary Classification
+
+
+The k nearest neighbors algorithm and the GLM with a logit link function both classify data into one of two categories.  Let's see which performs better on a specific data set.
+
+(a) Import the following data set with response variable equaling the five year survival outcome for patients receiving a certain treatment.
+
+```{r}
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/haberman.csv")
+df$Five.year.survival <- factor(df$Five.year.survival)
+```
+
+(b) Split the data into train/test sets.
+```{r,echo=FALSE}
+temp <- traintest(df)
+train <- temp$train
+test <- temp$test
+```
+
+(c) Train and assess a k nearest neighbor model with its accuracy.  Don't forget to standardize the columns.  You will need to select the best k.  To do that you'll want to use a validation set approach.  Answer (may vary due to random selection at train/test split):
+```{r,echo=FALSE}
+k_value <- 15
+# Split 80/20 into a train/validation set
+temp <- traintest(train,fraction_train = 0.8)
+tr <- temp$train
+val <- temp$test
+rm(temp)
+# Build the normalizer
+temp <- tr
+temp$Five.year.survival <- NULL # You'll have to do this for the target variable in temp
+M <- as.vector(lapply(temp,max))
+m <- as.vector(lapply(temp,min))
+normalize <- function(x) {
+  y <- as.data.frame(
+    lapply(1:ncol(x), 
+           function(z) (x[[z]]-m[[z]])/(M[[z]]-m[[z]]))
+  )
+  names(y) <- names(x)
+  return(y)
+}
+library(class)
+# Now set up the data and the model
+c.val <- val$Five.year.survival
+val$Five.year.survival <- NULL
+val <- normalize(val)
+c.tr <- tr$Five.year.survival
+tr$Five.year.survival <- NULL
+tr <- normalize(tr)
+c.model <- knn(tr,val,c.tr,k=k_value)
+# sum(c.model == c.val)/length(c.val)
+# Now we need to go back to the train and test data.
+c.test <- test$Five.year.survival
+test$Five.year.survival <- NULL
+test <- normalize(test)
+c.train <- train$Five.year.survival
+train$Five.year.survival <- NULL
+train <- normalize(train)
+c.model <- knn(train,test,c.train,k=k_value)
+sum(c.model == c.test)/length(c.test)
+```
+
+## Decision Trees
+
+Let's create a simple decision tree to classify the iris species in the iris data set.
+
+(a) Load the `rpart` and `rpart.plot` packages and the `iris` data set.
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+library(rpart)
+library(rpart.plot)
+data("iris")
+```
+
+(b) Train/test split!
+```{r,echo=FALSE}
+temp <- traintest(iris)
+train <- temp$train
+test <- temp$test
+rm(temp)
+```
+
+(c) Create a decision tree model with `Species` as response and the remaining variables as predictors.
+```{r,echo=FALSE}
+tree <- rpart(Species ~ ., data=train)
+rpart.plot(tree)
+```
+
+(d) Use your tree model from part (c) to predict `Species` from the training data and assess the accuracy.  Answer:
+```{r,echo=FALSE}
+pred <- predict(tree,train,type="class")
+sum(train$Species == pred)/length(pred)
+```
+
+(e) Finally use your tree model from part (c) to predict Species from the test data and assess the accuracy.  Answer:
+```{r,echo=FALSE}
+pred <- predict(tree,test,type="class")
+sum(test$Species == pred)/length(pred)
+```
+
+## Decision Tree Model for Messier Data
+
+Let's return to the data set from exercise 5 and create a decision tree model.
+
+(a) Import the following data set with response variable equaling the five year survival outcome for patients receiving a certain treatment.
+
+```{r}
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/haberman.csv")
+df$Five.year.survival <- factor(df$Five.year.survival)
+```
+
+(b) Train/test split.
+```{r,echo=FALSE}
+temp <- traintest(df)
+train <- temp$train
+test <- temp$test
+rm(temp)
+```
+
+(c) Create a decision tree model predicting `Five.year.survival`.  Plot the tree model.
+```{r,echo=FALSE}
+tree <- rpart(Five.year.survival ~ ., data=train)
+rpart.plot(tree)
+```
+
+(d) Test the model's accuracy on the test set.  Answer:
+```{r,echo=FALSE}
+pred <- predict(tree,test,type="class")
+sum(pred == test$Five.year.survival)/length(pred)
+```
+

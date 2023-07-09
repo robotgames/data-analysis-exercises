@@ -1,3 +1,244 @@
-# Day 13: An Introduction to Statistics
+# Day 13: DW - Transformations and Feature Creation
 
-Sampling, samples versus populations, set.seed in R and what it is good for
+
+## Pipes with magrittr
+
+The R library `magrittr` implements a system of pipe syntax, and the `tidyverse` builds on this system.
+
+Pipes are a syntax to create chains of operations on data sets.  These chains clearly communicate the individual steps in the process they achieve, they are easy to work with for exploration because they allow for the easy addition of steps in the process, and they are easy to apply to other data sets.
+
+Pipes are a system of functions and syntax.  All of the functions used in the intermediate stages of a piping system must take a data-frame-ish object as the first argument, and return a data-frame-ish object.  The last step in a system of pipes need not follow this rule, and often produces a graphic, table, or carries out some additional operation such as storing a value in a variable.
+
+We've used pipes throughout the earlier exercises, but in an informal sort of way.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% filter(Species == "setosa") %>%
+  filter(Petal.Length > 1.5) %>%
+  count()
+```
+
+(b)  Return to (a).  Write out the steps in the chain of commands, looking up functions in the help system as you go.  What does each link in the chain accomplish?  In particular, does `filter` extract rows (observations) or columns (variables)?
+
+(c) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% select(Petal.Length,Species) %>%
+  summary()
+```
+
+(d) Does `select` extract rows (observations) or columns (variables)?
+
+(e) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  select(contains("Petal")) %>%
+  slice_head(n=10)
+```
+
+Then, write a similar code chunk to extract the columns containing the width measurements.
+
+*Note:* This command can be useful when the number of variables in the data set is large.  However, it relies on naming the variables carefully and meaningfully!
+
+
+(f) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>% select(contains("Petal")) %>%
+  mutate(Petal.Area = Petal.Length * Petal.Width) %>%
+  slice_head(n=10)
+```
+
+Then, write a similar code chunk to add two columns to the data set, one the average of the petal and sepal lengths for each flower, and the other the average of the petal and sepal widths for each flower.
+
+(f) What does the `mutate` function do?
+
+(g) Let's put this all together.  Execute the following code chunk and make sure you understand what it does by writing out the steps.
+
+```{r}
+data("iris")
+iris %>% 
+  select(-Petal.Length,-Petal.Width) %>%
+  mutate(Sepal.Area = Sepal.Length * Sepal.Width) %>%
+  filter(Species != "setosa") %>%
+  ggplot(aes(x=Sepal.Area,y=Species,fill=Species)) + 
+  geom_violin()
+```
+
+*Note:*  The `select` step in the pipeline above was not necessary, and was included so that a `select` statement was in the chain.  But *why* was it not necessary?
+
+## Renaming variables
+
+When we import a data set from a file, we are at the mercy of those who have entered the data.  Missing data values, data entry errors, and poor choices in naming variables and factor levels.  At least we can address the third category by renaming!
+
+(a) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  rename(PetalLength = Petal.Length) %>%
+  slice_head(n=5)
+```
+
+Then write a code chunk that rewrites all of the variable names so that they do not include the period.
+
+(b) In many cases, names like `Petal.Length` are created when importing a `.csv` file.  The label at the top of the column contains spaces which are converted to periods on import.  Let's create such a file and then import it back in to see this!
+
+Execute the following code chunk to create a `.csv` file in your current working directory with variable names that have spaces.
+
+```{r}
+df.out <- tibble(`An apple`=1:3,
+           `A banana`=c(1.2,3.2,4.5)) 
+df.out
+df.out %>%
+  write.csv("temp.csv",row.names = FALSE)
+```
+
+Then, execute the following code chunk to read this file back in and display it.
+
+```{r}
+df <- read.csv("temp.csv")
+df
+```
+
+Write a code chunk to rename these variables `Apple` and `Banana`.
+
+(c) Try rerunning the code chunks in part (b) with the `tidyverse` functions `read_csv` and `write_csv` instead.  You should find that spaces do not get converted to periods.
+
+## Summarizing by Group
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+data("iris")
+iris %>%
+  group_by(Species) %>%
+  summarize(n=n(),
+            Mean = mean(Petal.Length),
+            St.Dev = sd(Petal.Length))
+```
+
+(b) Create a summary table for the sepal length of the irises.  The variables should be the minimum `min()` and maximum `max()` sepal lengths and the variance `var()` in the sepal length, all by species.  Answer:
+
+```{r,echo=FALSE}
+iris %>%
+  group_by(Species) %>%
+  summarize(Min=min(Sepal.Length),
+            Max=max(Sepal.Length),
+            Variance=var(Sepal.Length))
+```
+
+(c) Use a single pipeline to create new variables measuring the petal and sepal areas in the irises as length * width, and then compute the mean area of petals and sepals by species.  Answer:
+
+```{r,echo=FALSE}
+iris %>% 
+  mutate(Petal.Area = Petal.Length * Petal.Width,
+         Sepal.Area = Sepal.Length * Sepal.Width) %>%
+  group_by(Species) %>%
+  summarize(Mean.Petal.Area = mean(Petal.Area),
+            Mean.Sepal.Area = mean(Sepal.Area))
+```
+
+## Reordering the rows in a data frame
+
+(a) What are the species in the `iris` data set with the 10 shortest sepal lengths?  Execute the following code chunk to show they are all `setosa`.
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  arrange(Sepal.Length) %>%
+  select(Species) %>%
+  slice_head(n=10)
+```
+
+(b) Replace `Sepal.Length` with `desc(Sepal.Length)` in the previous code chunk to sort the data frame in descending order.  Use that to find the species of irises with the top ten longest sepal lengths.
+
+(c) Load the Motor Trends data set on cars, `mtcars`.  Find the five cars with the highest horsepower.
+
+(d) You can take a more direct approach with the `slice_min` and `slice_max` functions. The code chunk below achieves the same objective as the code chunk in (a).
+
+```{r,eval=FALSE}
+data("iris")
+iris %>%
+  slice_min(Sepal.Length,n=10) %>%
+  select(Species)
+```
+
+Rewrite your code chunk in part (c) using the `slice_max` function.
+
+## Finding unique cases
+
+(a) Execute the following code chunk to count the number of unique values of `cyl` in the `mtcars` data set.
+
+```{r,eval=FALSE}
+data("mtcars")
+mtcars %>%
+  rownames_to_column(var="Cars") %>%
+  distinct(cyl) %>% nrow() -> n
+```
+
+*Note:*  If you remove the `rownames_to_column` element from the pipeline you'll see why I included it.  Try it!
+
+(b) Replace `distinct(cyl)` by `distinct(cyl,gear)` in the code chunk in (a) and rerun the code.  What output is produced?
+
+(c) Add an additional `%>% nrow() -> n` to your code chunk in (b).  This will count the number of distinct cases and store that value in the variable `n`.  How many distinct cases are there?
+
+
+## Using Cut to Create a Factor from a Numeric
+
+
+In this exercise we will create a new factor variable for the storms data set we worked with in exercise 9.  With that, we will explore the connections between our new factor variable and the existing factors `status` and `category`.  Make sure that you have loaded the `tidyverse` package and the storms data set as in exercise 9.
+
+We can use the `cut` function in R to categorize the `hurricane_force_diameter` variable.  This will take some work!
+
+(a) Are there any missing data values in the `hurricane_force_diameter` variable?  (*Hint:* Yes.  But how do you know?  Write an R code chunk to explain.)
+
+(b) Remove all of the records for which `hurricane_force_diameter` is NA using the code chunk
+
+```{r}
+filter <- !is.na(storms$hurricane_force_diameter)
+hfd <- storms[ filter, ]
+```
+
+What is `filter` "doing"?  And how many observations were filtered out of storms to produce the hfd data set?
+
+(c)  At this point we are ready to create our new factor variable.  I've done so in the following code chunk.  Explain what this is doing.  You might want to look up `cut` in the documentation.
+
+```{r}
+hfd$hurricane_force <- cut(hfd$hurricane_force_diameter,breaks=5)
+```
+
+(d) Make a bar plot for the new `hurricane_force` variable.  What does it tell you?  Do all of the categories seem to be "useful", informative?
+
+(e) Use a `group_by` and `summarize` pipe system to count the number of observations in each category of `hurricane_force` (see exercise 2 in this homework set).  Are the levels in the factor variable badly "unbalanced" in some way?
+
+(f) Re-create the `hurricane_force` factor variable using 
+
+```{r}
+hfd$hurricane_force <- cut(hfd$hurricane_force_diameter,breaks=c(-Inf,75,150,Inf))
+```
+
+Are the levels in the factor variable somewhat better balanced?  (Not perfect, but better?)
+
+(g) Explore the connections between the `category` variable and the `hurricane_force` variable using bar plots and `facet_wrap` as in exercise 9.
+
+(h) We can include information from `category`, `status`, and `hurricane_force` in a single plot as follows:
+
+```{r}
+ggplot(data=hfd,aes(y=category)) +
+  geom_bar() +
+  facet_grid(rows = vars(status),cols = vars(hurricane_force))
+```
+
+Spend some time experimenting to make this plot more attractive: better colors, labels, title.
+
+(i) Make some conclusions from your plot in part (h).  A good place to start is with simple statements: when *blah blah* in this category, we tend to see *other blah blah* in this other category.
+
+*Note: We have badly ignored some aspects of the storms data set in producing these graphics.  In particular, the data was collected over time!  This exercise is simply to get some practice creating bar plots.  We will return to this data set in a later homework assignment to address time issues and perform a more complete analysis.*
+

@@ -1,0 +1,210 @@
+# Day 33: Random Forests
+
+## Random Forest Model
+
+Let's build a random forest model for the `iris` data set.
+
+(a) Train/test split!
+```{r}
+library(randomForest)
+data("iris")
+n <- round(nrow(iris) * 0.6)
+in_train <- sample(1:nrow(iris),n)
+train <- iris[in_train,]
+test <- iris[-in_train,]
+```
+
+(b) Build a random forest model predicting `Species` from all the remaining variables.  Use `ntree=100` and `mtry=2` as parameters.  Create a confusion matrix for the results.  Answer:
+```{r}
+rf.mod <- randomForest(Species ~ ., data=train,
+                       ntree=100,
+                       mtry=2)
+predictions <- predict(rf.mod)
+table(predictions,train$Species)
+```
+
+(c) Now assess your model performance on the test set using the same model parameters.  Compute the accuracy in prediction.  Answer:
+```{r}
+predictions <- predict(rf.mod,test)
+sum(predictions == test$Species)/length(predictions)
+```
+
+## Random Forest Model with some data wrangling (more like this throughout)
+
+This is a slightly longer exercise than the first.  The goal is to build a random forest model to predict classes, but there is some data cleaning/wrangling to be done.
+
+(a) Load the data set and perform initial cleaning with the following code chunk:
+```{r,echo=TRUE}
+library(tidyverse)
+library(lubridate)
+raw <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/kickstarter_projects.csv")
+df <- raw %>% select(-X) %>%
+  mutate(goal = as.numeric(goal),
+         pledged = as.numeric(pledged),
+         backers = as.numeric(backers)) %>%
+  drop_na() %>%
+  mutate(category=factor(category),
+         main_category = factor(main_category),
+         currency = factor(currency),
+         launched = as.Date(launched)) %>%
+  mutate(Year = factor(year(launched)),
+         Month = month(launched,label=TRUE)) %>%
+  select(-launched)
+rm(raw)
+```
+
+Make sure you understand what is going on here!
+
+(b) This is an interesting data set because the response - the target for prediction - is only given implicitly in the data set and we need to create the target.  Make a new variable, `target`, using the following code block.
+
+```{r,echo=TRUE}
+df$target <- factor(ifelse(df$pledged >= df$goal, 
+                           "Funded", 
+                           "Not funded"))
+```
+
+(c) We're nearly ready to start our model building.  However, there are some variables that we will not have when making predictions about Kickstarter projects, and so we cannot use them as predictors.  Execute the following code block to remove these variables.
+```{r,echo=TRUE}
+library(tidyverse)
+df <- df %>% select(-pledged,-backers)
+```
+
+(d) Train/test split!  Use the 60/40 split.
+```{r}
+n <- round(0.6 * nrow(df))
+in_train <- sample(1:nrow(df),n)
+train <- df[in_train,]
+test <- df[-in_train,]
+rm(df,n,in_train)
+```
+
+(e) It's time to build the model.  You should use a validation set approach to assess and choose model parameters.  Don't use the `name` or `category` variables.  *Note: Random forests have a sort of built-in validation process that means they are much less likely to overfit.  But we will still need validation sets when selecting parameter values.*  *Second note: Start with 100 trees or so.  Training a random forest with lots trees may take a LONG time.*  Accuracy:
+```{r}
+mtry_value <- 1
+ntree_value <- 500
+n <- round(0.6 * nrow(train))
+in_train <- sample(1:nrow(train),n)
+tr <- train[in_train,]
+val <- train[-in_train,]
+library(randomForest)
+rf.model <- randomForest(target ~ . -name -category,
+                         data=tr,
+                         mtry=mtry_value,
+                         ntree=ntree_value)
+predictions <- predict(rf.model,val)
+sum(predictions==val$target)/length(predictions)
+```
+
+(f) And finally we assess our model performance on the test set.  You should retrain your model using the parameter values you chose and the entire train set.  Then assess its performance on the test set.  Answer:
+```{r}
+mtry_value <- 1
+ntree_value <- 500
+rf.model <- randomForest(target ~ . -name -category,
+                         data=train,
+                         mtry=mtry_value,
+                         ntree=ntree_value)
+predictions <- predict(rf.model,test)
+sum(predictions==test$target)/length(predictions)
+```
+The accuracy should be very close to the accuracy achieved on the validation sets.
+
+## Variable Importance Plot
+
+Return to exercise 2.  Create a plot of the variable importance.  You may need to rebuild the model.  What are the most important variables in the model?  Answer:
+```{r}
+mtry_value <- 1
+ntree_value <- 500
+rf.model <- randomForest(target ~ . -name -category,
+                         data=train,
+                         mtry=mtry_value,
+                         ntree=ntree_value,
+                         importance=TRUE)
+varImpPlot(rf.model)
+```
+
+## Comparing Linear Model and Random Forest Model With Data Join (more data joins earlier on?)
+
+In this exercise we'll build a linear model and a random forest model predicting SO2 concentration levels in California counties.  We'll be aiming to understand which variables are most important in predicting this type of air pollution.
+
+The first part of the exercise deals with loading, cleaning, and joining two data sets.  This is a typical part of the challenge in data analysis!  I'll include the code; you should follow along, make sure you understand what each step is doing, and then build the models at the end.
+
+Also, be aware!  The code in this exercise is intended to be executed linearly, in order.  If you find yourself needing to re-execute some code, you may find that you need to execute the code in this exercise from the beginning!
+
+(a) Load the SO2 data set using the following code block.  Inspect the data and make notes on what needs to be cleaned, changed, etc.
+
+```{r,echo=TRUE}
+df <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/california_air_pollution_SO2_2000_2016.csv")
+```
+
+(b) Load the population data using the following code block.  Inspect the data and make notes on what needs to be cleaned, changed, etc.  I've already removed a couple of variables that we won't use.
+```{r,echo=TRUE}
+library(tidyverse)
+pop_info <- read.csv("https://github.com/cbrown-clu/Math-331-Data-Analysis/raw/master/B.%20Data%20sets/california_pop_by_county_and_year.csv",
+                     sep=";") %>%
+  select(-Census.Base,-Estimates.Base)
+```
+
+(c) We want to join these two data sets together.  Therefore, in `df` we will need data grouped by year and county.  Let's begin by dealing with the dates and then summarizing by year.  Inspect the data set resulting from the following code block and make sure it "looks like" it should.
+```{r,echo=TRUE}
+library(lubridate)
+df$Year <- factor(year(as.Date(df$Date.Local)))
+df <- df %>% group_by(County,Year) %>%
+  summarize(SO2.Mean = mean(SO2.Mean)) %>%
+  ungroup()
+```
+
+(d) Let's turn our attention to the population info data set `pop_info`.  We need to make sure that the county names match the county names in `df`, and currently they don't.  This is going to take a bit of manipulation.  While we're at it, we'll also change the column names.  Make sure you understand what the following code is doing!
+```{r,echo=TRUE}
+pop_info <- pop_info[-1,]
+names(pop_info) <- c("County",2010:2019)
+get_county_name <- function(s) {
+  x <- gsub(".","",s,fixed=TRUE)
+  str_split(x," County")[[1]][1]
+}
+get_county_name <- Vectorize(get_county_name)
+pop_info$County <- get_county_name(pop_info$County)
+```
+
+(e) Next, the numerical data in the Excel sheet this was taken from had commas (Excel is very, very bad about formatting).  Unfortunately, this means that the data reads in as characters.  We need to remove the commas and convert the resulting data fields into numeric data.  Make sure you understand what the following code is doing!
+```{r,echo=TRUE}
+remove_comma <- function(s) {
+  as.numeric(gsub(",","",s))
+}
+remove_comma <- Vectorize(remove_comma)
+pop_info[,2:11] <- sapply(2:11, function(z) remove_comma(pop_info[,z]),
+                          USE.NAMES = FALSE)
+```
+
+(f) A common practice is to list time series data with years in columns.  This can make other data operations tricky.  Fortunately, there is a pivot operation that can help.  Make sure you understand what the following code is doing!
+```{r,echo=TRUE}
+pop_info <- pivot_longer(pop_info,2:11,
+                         names_to = "Year",
+                         values_to = "Population")
+pop_info$Year <- as.factor(pop_info$Year)
+```
+
+(g) And finally we can join the two data sets.  Make sure you understand what the following code is doing!  It will help if you inspect `df` before and after executing this code.
+```{r,echo=TRUE}
+df <- inner_join(df,pop_info)
+```
+
+(h) Create a linear model with `SO2.Mean` as the response variable and all others as predictors.  Summarize the linear model, and use that information to determine which variables are most important in predicting the response.
+```{r,eval=FALSE}
+lin.mod <- lm(SO2.Mean ~ . , data=df)
+summary(lin.mod)
+```
+
+(i) Create a random forest model using `SO2.Mean` as response and the remaining variables as predictors.  Make a variable importance plot.  Which variables are most important in the random forest model?  Does this seem reasonable?
+```{r,eval=FALSE}
+library(randomForest)
+rf.model <- randomForest(SO2.Mean ~ ., data=df,
+                         mtry=3,
+                         ntree=500,
+                         importance = TRUE)
+varImpPlot(rf.model)                         
+```
+
+
+
+
+
