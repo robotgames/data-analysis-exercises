@@ -1,6 +1,6 @@
 # The Third Homework: Loops and Data Frames
 
-*Note:* In actual coding, loops defined by `for` and `while` control structures play a relatively small role in most data analytics operations.  Conceptually, loops are everywhere!  In the first few exercises, we'll introduce loops, and then examine how to avoid them.  In R, Loops are unnecessary when there is an R function that allows us to avoid coding the loop explicitly.  Because these built-in R commands are coded in a lower-level language like C, they tend to run much faster than explicitly coded loops.  This distinction tends to be important for students who have learned to code in C or Java and have used loops extensively in their previous coding experiences.
+*Note:* In coding, loops defined by `for` and `while` control structures play a relatively small role in most data analytics operations.  Conceptually, loops are everywhere!  In the first few exercises, we'll introduce loops, and then examine how to avoid them.  In R, Loops are unnecessary when there is an R function that allows us to avoid coding the loop explicitly.  Because these built-in R commands are coded in a lower-level language like C, they tend to run much faster than explicitly coded loops.  This distinction tends to be important for students who have learned to code in C or Java and have used loops extensively in their previous coding experiences.
 
 ## While Loops
 

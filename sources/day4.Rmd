@@ -1,0 +1,137 @@
+# Day 4 - Applying Functions to Data
+
+## Review - Vectorized Functions
+
+Remember that any function that returns simple data types such as numerics, logicals, or strings can be vectorized.  Simply write the function, then use the `Vectorize` operation in R.  The code will look something like
+
+```{r,eval=FALSE}
+f <- function(x) {
+  some code here
+  more code here
+  return(something)
+}
+f <- Vectorize(f)
+```
+
+*Summary: This is a brief review of the structure for vectorizing functions.  In your written submission, indicate that you have reviewed this concept.*
+
+## Clipping
+
+In data analysis, we may want to clip the values of a vector of data so that all values below the stated minimum become the minimum and all values above the stated maximum become that maximum.  
+
+(a) Define a function with one input.  Your function should return the input value if the input is between 0 and 100, 0 if the input is below zero, and and 100 if the input is greater than 100.
+
+(b) Vectorize your function from (a) using `Vectorize`.
+
+(c) Create a vector using `x <- 200*runif(100)-50`.  Apply your vectorized function from (b) to the vector `x` and store the resulting vector in `y`.
+
+(d) How many entries in `y` are 0 and how many are 100?  *Hint*: Don't count by visual inspection.  Use a filter and the `length` function.
+
+*Summary - You have defined a simple function that clips data values to a range.*
+
+## Standardizing a Vector
+
+Suppose that we have some numerical data, and we wish to "compress" it so that all values have been transformed to lie in the interval $0\leq x\leq 1$.  This operation is called **standardizing** the data.  We can use the function$$f(x)=\frac{x-m}{M-m}$$where $m$ and $M$ are the minimum and maximum of the data, respectively.
+
+Define a function that takes a vector as input and normalizes it.  Test your function on the data `x <- (1:10)^2`.
+
+*Summary: You have written a simple function that standardizes data to the range $[0,1]$.  In statistics, "standardize" is sometimes used to mean rewriting the data in units equaling the standard deviation and shifting the mean to 0.  This is not that standardize!*
+
+## Transforming Data With a Vectorized Function
+
+(a) Use `temps <- rnorm(100,20,4)` to simulate some temperature data.  These temperatures are in degrees Celsius.
+
+(b) Write a vectorized function that converts a temperature in degrees Celsius to a temperature in degrees Fahrenheit.  *If you don't happen to know this off the top of your head, feel free to Google it.  Or, just remember that it is a linear function and we know the corresponding freezing and boiling temperatures of water in both temperature systems.*
+
+(c) Apply your temperature system conversion function from (b) to your vector `temps`.
+
+*Summary: You have written a simple unit conversion function.*
+
+## Functions to Tweak R Commands
+
+In homework 1, we encountered the `which.max` function.  It has an important limitation: applied to numeric vectors, it only returns the index of the *first* maximum.  For example,
+
+```{r}
+x <- c(1, 2, 7, 0, 7)
+which.max(x)
+```
+
+returns `r which.max(x)` and not the index of the second maximum.  But what if we would like to find all the indices of the maximum value in a vector?
+
+(a) For the vector `x` above, write a piece of code that finds the maximum *value* in the vector and store it in the variable `M`.
+
+(b) Write a logical filter that looks only for the maximum value in `x`.  Something `==M`, perhaps?  Once you have this filter, combine it with the `which` function to find all of the indices of the vector `x` holding the maximum value.
+
+(c) Combine your work from (a) and (b) to write a function, `which.max.all`.  Your function should take a numeric vector `x` as input and should return a vector of all of the indices of `x` containing the maximum value.  For the vector `x` written above, your function should return `c(3,5)`.  To get you started, your function should look something like...
+
+```{r,eval=FALSE}
+which.max.all <- function(x) {
+  # find the max and store it in M
+  # filter for the indices that give the value M
+  # return a vector of indices!
+}
+```
+
+*Summary: You have altered an R function to better serve a particular application.*
+
+## A Function Defining "Pretty Close"
+
+In some data it is natural to allow for small measurement errors.  So, we may not want to find only the indices of the maximum value of a vector, but indices containing values that are "pretty close" to the maximum value in the vector.
+
+(a) Imagine that you have been given a numeric vector `x` and a positive (small) value `epsilon` (we'll use `epsilon` in part (b) ).  Write an R code chunk that stores the maximum value from `x` in the variable `M`.  *Hint:* You may want to write your own vector `x` and number `epsilon` for testing purposes.
+
+(b) What does the R expression `abs(x-M)<epsilon` return, and what does it do?
+
+(c) Now, modify your work from exercise 5.  You should produce a function that takes a numeric vector `x` and a positive value `epsilon` as inputs, and returns a vector of the indices in `x` containing values that are within `epsilon` units of the maximum value in the vector.  Hint:* Your function here should look similar to your function from exercise 5.  Major difference, from a coding point of view... there is an additional input.
+
+```{r,eval=FALSE}
+which.max.approximate <- function(x,epsilon) {
+  # put some code here!
+}
+```
+
+*Summary: You have written a function to find approximate maximizers.*
+
+## A Function Defining "Within n Standard Deviations of the Mean"
+
+Adapt your code from the previous exercise to write a function that returns the indices of the values in a vector that are within a specified number `n` standard deviations of the mean of the data in that vector.
+
+## A Function to Extract Information from Strings
+
+In some cases, data that should be numeric is input as character data.  This can happen when unwisely using any number of data collection methods, especially electronic entry forms.
+
+For this exercise, let's suppose that users have entered their heights as a number, then a space, then a unit.  Here is a sample from the data vector:
+```{r}
+heights <- c("62 inches","1.65 meters","1.78 meters","68 inches")
+```
+
+(a) Evaluate the code `strsplit("23 skedoo"," ")[[1]]`.  What data type does it return, and what does it do?
+(b) Evaluate the code `as.numeric("23")`.  What does it do?
+(c) Write a function that takes as input a string of the form `"23 skedoo"`: a number, then a single space, and then some characters.  Your function should output the numeric part of the string as a numeric data value.
+(d) Repeat (c), but build this second function to return the non-numeric part of the string.
+(e) Now we'll address the actual formatting problem.  Write a vectorized function that takes as input a string formatted as seen in the `heights` vector and as described in (c) and (d).  Your function should output the number of inches; if the units in the data are in meters, your function will need to convert the numeric value to inches before returning it.  Once you are done, apply your function to `heights` as a test.
+
+*Note:* Differently formatted data is a very common problem to face as a data analyst.  This can result from poor data collection technique, but more often results from combining data sets acquired from different sources.  Learning how to manipulate strings is an important data analytics skill, and is useful in the data cleaning process.  Google "regular expressions" for more information than you will want to know; this rabbit hole goes deep.
+
+*Summary: You have written a function to deconstruct a string and process its information based on its contents.  This is a useful process in data analysis.*
+
+
+## Coding Text Fields With Logical Flags (One-Hot Encoding)
+
+Data might be in the form of text instead of numbers.  For example, a common data field in ecology and in medicine is a *notes* section, where the observer makes some quick notes on whatever they are seeing.
+
+We might want to *code* text data with a logical flag.  A common action is to create a logical vector that corresponds to our character vector where `TRUE` indicates the presence of a certain word and `FALSE`indicates its absence.
+
+Define the test vector `test <- c("doggos","cats","Bears","Doggies")`.  We want to write a function that flags each entry as `TRUE` whenever `dog` is present and `FALSE` otherwise.
+
+(a) Evaluate the code `grepl("alpha",c("alphabet","al"))`.  What does it do?
+
+(b) Evaluate the code `grepl("al",c("alphabet","al"))`.  What does it do?  Compare to (a).
+
+(c) Evaluate the code `grepl("Al",c("alphabet","al"))`.  What does it do?  Read the docs for the `grepl` function; if the case of the letters in the pattern does not matter to you, is there an easy way to fix that, i.e. to ignore the case?
+
+(d) Write a vectorized function that takes as input a vector of strings (like `test`).  Your function should return a logical vector where `TRUE` indicates the presence of the string `dog`, and case should not matter.
+
+(e) This is an incredibly useful tool.  Write a short description of what this exercise is getting at.  This will help set it in your memory; it will almost certainly come up again, and seems to come up often in the projects students select in the course.
+
+*Summary: You have coded text fields to indicate the presence or absence of a small string.  This is a common operation in data analysis.*

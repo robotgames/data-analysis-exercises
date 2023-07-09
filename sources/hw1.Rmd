@@ -1,28 +1,100 @@
 # The First Homework: An Introduction to Data Analysis
 
-## The First and Last Miles
+## The First and Last Miles: Visualization
 
 There is an aphorism to the effect that the first and last miles of any data analysis journey is dominated by visualizations.  That's true, or close enough to it.  The first part of a data analytics project - after the data is available to you! - is to explore the data set through summaries, tables, and lots and lots of visualizations.  The last part is to communicate your conclusions and insights to an audience, and this usually involves creating compelling and informative visualizations.
 
 But to be a little more precise, first you have to *get* that data, then analyze it.  In this exercise we'll assume you have access to the data as a `.csv` file (a comma-separated value file), which means that our task is simply to read the data into RStudio.
 
+Create a new code block for R in RStudio and execute the following command:
+
 ```{r}
-df <- read.csv()
+site <- "https://github.com/"
+repo <- "robotgames/data-analysis-exercises/"
+file <- "raw/main/data/abalone.csv"
+df <- read.csv(paste0(site,repo,file))
 ```
 
+This could have been accomplished with one big line, like
+```{r,eval=FALSE}
+df <- read.csv("https://github.com/robotgames/data-analysis-exercises/raw/main/data/abalone.csv")
+```
+but see what happened in the output?  So instead, we worked with chunks of the path to the file and glued them together later.  *Most of the time R simply "knows" when a line continues and so you can just insert line breaks as needed for readability and style.  However, strings act a little differently.  Inserting a line break literally inserts a line break character into the string...which turns out to be bad for a URL.*
 
+You should see that RStudio's Data pane (upper right area of the RStudio app by default) now includes a line with our dataframe name `df` along with some basic information about it (4177 observations of 7 variables).  We can summarize the dataframe:
+
+```{r}
+summary(df)
+```
+
+And once we have done that we know which variables are numeric and which are not.  Let's make a quick scatterplot of `Shell.weight` versus `Length`.
+
+```{r}
+plot(df$Length,df$Shell.weight)
+```
+And we've gotten started on the first mile of our data analysis with this data set!  You probably have many, many questions about the details in this exercise.  We'll flesh those out over the course of several of the early assignments.
+
+*Summary: In this exercise you recreated the code above to read the data and create a plot.  You may not understand why the commands work the way they do, and that's okay for now.*
+
+```{r,echo=FALSE}
+rm(df,file,repo,site)
+```
+
+## Aside: The Data Analysis Process
+
+Let's break down the data analysis process into six discrete stages: Inquiry, Ecology, Processing, Analysis, Communication, and Action.
+
+* **Inquiry** - Ask questions.  Many questions start out vague and broad - "How can we save the world?" and gain specificity during an investigation - "How can we improve the crop yield of this particular grain in this particular region?"  As a data analyst, your goal is to make sure that the questions can be addressed measurable data that is accessible.  The inquiry process may involve some initial data gathering and some exploratory data analysis as the questions under investigation are made more specific.
+
+* **Ecology** - Data exists everywhere in the wild, but you may have to capture it and store it in a zoo for later use.  Understanding what data is out there and how to capture it is a useful skill set.  This process is often known as *data ingestion*, but I prefer the term "ecology" to remind you that data exists in the world **in context**, in a certain system, and that can never be ignored.  The "zoo" where you store your data may be highly structured (relational databases made up of linked collections of tables) or not (a big folder full of web pages, texts of emails, and images).
+
+* **Processing** - Before use in an investigation, the data must be extracted from the zoo and processed.  Data might be problematic in many ways: badly formatted, inconsistent units, stored in different tables, suspiciously out of the range of possibility (a human with a recorded height of 60 feet is probably a data entry error!), or just plain missing.  These issues must be addressed before the data is analyzed.
+
+* **Analysis** - Explore, summarize, visualize, and model the data.  The goal here is to develop responses to the driving questions that are supported by the available data.
+
+* **Communication** - Report the results of the analysis to the appropriate audience.  Communicating results with data is a broad skill set, including: technical skills to create impactful visualizations and animations; design skills to create engaging and aesthetically pleasing supporting materials; critical thinking skills to describe how the conclusions were reached; and communication skills to engage the audience.
+
+* **Action** - Decision makers use the conclusions of the analysis to take action.
+
+We'll also break down data contexts - the real-world situations when we call for data to be analyzed - into three broad categories.
+
+* **One-offs** - There is a particular question and a data set that seems relevant.  Analyze!  In the one-off, we *don't* need to worry about how often the analysis must be repeated.  The one-off is common in experimental sciences, in which the researcher designs an experiment to collect data, performs it, analyzes the data, and reports.  The data is still archived and may be used later, but there is no expectation of that.
+
+* **Updates** - There is a particular question that must be answered, but the answer - and the data that leads to it! - changes over time.  For example, a company may be interested in selecting a strategy from among many possible.  It gathers data and periodically analyzes that data...and may shift strategies when the data indicates.  In this case, *data engineering* is crucial.  The new data must be gathered and processed repeatedly, and so we would like an automated system with monitoring tools to do so.  Reports must be generated periodically or even updated live on websites, and again we would like an automated system with monitoring tools to do this.
+
+* **Question pools** - The analyst is not focused on one question only, but on a related collection of questions - a question pool.  For example, a corporation might have the broad question "How can we increase shareholder value?"  That can be sharpened to many more specific questions, and the organization might be interested in answering any or all of them.  In this case, the focus is strongly on archiving large data sets and making them accessible to the analysts who need them.  This is similar to the **Updates** context in the sense that the focus is on the engineering aspects, but here the focus is strongly on creating robust, flexible computer architectures to store and retrieve data.  Computer security is also important; the data must be accessible to the analysts who need it, not accessible to those who don't, editable by those who need to do so and not editable by those who have no need.  *You can think about this as you would any shared cloud doc.  Who can view it?  Who can edit it?  Can those permissions change over time and who has the authority to change them?*
+
+Okay, so in this class, what's our focus?
+
+* We're not going to be concerned about data engineering in this course.  So we won't worry about how data is stored or accessed, and we won't worry about automating those processes.  Data engineering has a great deal of overlap with software engineering and with database design, and I highly recommend taking courses in those areas if you are interested.  Having said that...
+
+* We will use tools that allow us to repeat our analyses with updated data sets.
+
+* We will focus strongly on the Analysis and Communication aspects of the data analysis process, and somewhat less heavily on the Processing and Inquiry aspects.  Because we focus heavily on Analysis and Communication...
+
+* We will use tools that strongly support Analysis and Communication operations.  Thus the choice of the R language and the RStudio platform.
+
+*Summary: In this exercise you read about the data analysis process.  When you submit your assignment, just indicate that you read this exercise.*
+
+## Aside: The Assignment Writeup
+
+In this class I expect you to create a new RMarkdown document for each new assignment.  You may want to create a new project for each one (I certainly recommend that).  When you write your responses to assignment exercises, you should present code in visible code chunks and you should connect your code chunks with relevant discussion that acknowledges there is a reader who will be viewing your document.  You can comment your code with short notes, but that is not a replacement for the connecting language between code chunks.
+
+That is, get in the habit of thinking of each RMarkdown document as a full-featured document, part of which includes code.
+
+*Summary: You read about the assignment expectations.  In your assignment writeup, indicate that you read and understand this exercise.*
 
 ## From Math Expressions to R
 
-Generally, the syntax for mathematical expressions in R works as in most spreadsheets.
+The syntax for mathematical expressions in R works as in most spreadsheets and calculators.
 
-Evaluate each of the following mathematical expressions with a chunk of R code.  For example, if the expression is $3e^{2*1.45-1}$ you would write the chunk of R code:
+Create a new RMarkdown document.  Evaluate each of the following mathematical expressions with a chunk of R code.  For example, if the expression is $3e^{2*1.45-1}$ you would write the chunk of R code:
 
 ```{r}
 3*exp(2*1.45-1)
 ```
 
-and evaluate to arrive at your answer.  *You may have to search to discover how to write some functions in R.  This is an opportunity to practice searching for technical details about your coding language, an invaluable skill.*
+and evaluate to arrive at your answer.  Connect your evaluations with some relevant text, like "this is my answer to part (a)".  *You may have to search to discover how to write some mathematical functions in R.  This is an opportunity to practice searching for technical details about your coding language, an invaluable skill.*
 
 (a) $3\cdot 5^2-2.4\cdot 10^{-1}$  Answer:
 
@@ -58,6 +130,8 @@ sqrt( (14+5.2)/(2.1-0.9) )
 log(0.2) - log(sqrt(3))
 ```
 
+*Summary: In this exercise you evaluated some mathematical expressions using R like a calculator.  If you're curious about how I formatted the math expressions to look like math expressions ... well, did you do a web search?  Why not?  Try it!  Get in the habit of formulating good search questions and looking for answers to technical questions.*
+
 ## Rounding Numbers in R
 
 (a) Execute the following code chunk to see what happens.
@@ -77,6 +151,10 @@ floor(-1.234)
 ceiling(-1.234)
 ```
 
+(c) Explain in plain language what `round`, `floor`, and `ceiling` do.
+
+*Summary: You experimented with common rounding functions.*
+
 ## Scientific Notation in R
 
 (a) Execute the following code chunk to see what happens.
@@ -90,6 +168,8 @@ ceiling(-1.234)
 ```{r,echo=FALSE}
 (2.1e8) * (3.4e7)
 ```
+
+*Summary: You learned how to use scientific notation in R.*
 
 ## Variables in R
 

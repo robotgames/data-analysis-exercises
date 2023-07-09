@@ -1,0 +1,462 @@
+# Day 3 - Functions and Logical Control With If
+
+## The Structure of an R Function
+
+Functions in R have a well-defined structure: the `function` keyword, followed by `variables`, followed by a code block with a `return` statement.  For example,
+
+```{r,eval=FALSE}
+function(x) return(x^2)
+```
+
+is a simple function that squares a value.  Functions, just like values, can be stored in variables.  So we would probably have written our squaring function *and* stored it in a variable:
+
+```{r}
+f <- function(x) return(x^2)
+```
+
+To use our function, we use the typical `f()` notation as you have seen in your mathematics courses.
+
+```{r}
+f(2)
+f(3)
+f(-5)
+```
+
+For most functions, the code block will have multiple lines and will be much more complex.  In those cases, we indicate the beginning and end of the code block using curly braces, `{` and `}`.
+
+```{r}
+f <- function(x) {
+  return(x^2)
+}
+```
+
+Functions may take more than one input.
+
+```{r}
+f <- function(x,y) {
+  z <- max(x,y)
+  return(x*z)
+}
+```
+
+When calling them you must provide all the inputs.
+
+```{r}
+f(2,3)
+f(5,3)
+```
+
+And functions can return any sort of R object you like.  Here is an example of a function that returns a vector.
+
+```{r}
+f <- function(x,y) {
+  return(rep(x,y))
+}
+```
+
+Testing, we have
+
+```{r}
+f(5,6)
+f("dog",3)
+```
+
+Note that because the inputs have no types specified, the function can be applied to a wide variety of data types.  This is good - flexibility! - but it can make debugging your code tricky.
+
+*Summary: You've seen the basic structure of R functions.  You'll get exercise writing your own in the coming exercises and we'll investigate some of the trickier aspects of writing functions in R.  For those of you who have coded in another language like Java or Python, R functions may behave somewhat differently than you expect, so proceed with caution.  In your written submission of this assignment just indicate that you have read this exercise.*
+
+## Aside: Why Functions?
+
+Why use functions at all?  Why not just copy and paste the code block you would have written inside the function everywhere you need it?
+
+Let's first revisit why we use variables.  A variable stands for a value and can be used in place of that value in code.  In a chunk of code like
+
+```{r}
+a <- 2
+x <- a^2+2
+y <- 10-a
+z <- max(x,y)
+a*z
+```
+
+if I want to rerun this code for a different value of `a`, like `5`, I can change the value of `a` in one location only and it updates everywhere else it is needed.  No copy-paste at all.  And there are dangers in copy paste!  Your friend Gordon, trying to be clever, writes the code block above without any variables at all...
+
+```{r}
+2*max( 2^2+2, 10-2 )
+```
+
+and he arrives at the correct answer.  But then he needs to change all of the `a` values to `5`, and so he tries to copy-paste.  He uses Find...Replace to find all of the `2`'s and replace them with `5`'s.  What happens?
+
+```{r}
+5*max( 5^5+5, 10-5 )
+```
+
+Okay, so in trying to be clever, Gordon has replaced the `2`'s with `5`'s...and he replaced all of the `2`'s in the equation formulas as well.  That is, the first bit of his formula no longer looks like `a^2+2` but instead like `a^5+5`.  This is just one danger when trying to avoid variables; editors cannot distinguish between the numbers you want to replace and other numbers that are part of formulas if they are the same number!  *And before you sneer and swear you would never do this, just be aware that one of my students did.  On his senior capstone project.  With many hundreds of lines of code.  Costing him two weeks of debugging time.*
+
+Moral of the story?  We use variables because they let us re-use a value many times in our code and they let us update that value by editing one location only.
+
+And that brings us to functions.  **Functions are to code what variables are to values**.  Functions provide blocks of code that we can re-use many times, and they let us update that code by editing in one location only.  This can be incredibly helpful when we need to perform the same operation to every entry in a vector with thousands of pieces of data.
+
+Additionally, we use functions to logically organize computations into understandable "chunks".  This makes our code much more readable.
+
+As an example, suppose I want to check every entry of a character vector to see whether it contains the string `data`.  I can write a function to do that!
+
+```{r}
+check_for_data <- function(x) {
+  return(grepl("data",x))
+}
+```
+
+And I can check it on a few examples like
+
+```{r}
+check_for_data("The data is here")
+```
+
+and like
+
+```{r}
+check_for_data("No, none of dat here")
+```
+
+So now I have a function with a meaningful name, `check_for_data`, instead of a function with a less memorable name, `grepl`.  And, suppose I encounter some records in my data set like `"THERE IS DATA HERE"`.  Checking my function on this string,
+
+```{r}
+check_for_data("THERE IS DATA HERE")
+```
+
+I find that it doesn't behave as I would like it to because it distinguishes the case of the word.  I can easily return to my definition of my function and alter it:
+
+```{r}
+check_for_data <- function(x) {
+  return(grepl("data",x,ignore.case=TRUE))
+}
+```
+
+*In practice we would not have done this in a new code chunk, but simply alter the function in place earlier.*  And now my example behaves as I would like:
+
+```{r}
+check_for_data("THERE IS DATA HERE")
+```
+
+Code readability plus updating code in one location only!  That's why we use functions.
+
+*Summary: You've read a bit about why we use functions in computer science.  In you assignment submission you can simply indicate that you have read this exercise.*
+
+## Coding Mathematical Functions
+
+Write an R code chunk defining each of the following mathematical functions as a function in R.  You should test each of your functions on a few inputs to make sure it works, and demonstrate your tests.  For example, given the function $f(x)=|2x-3|$,  we can write the code
+```{r}
+f <- function(x) {
+  return(abs(2*x-3))
+}
+f(5)
+f(0)
+```
+
+(a) $f(x)=3+2(x-1)+7(x-1)^2$  
+
+Test on input $2$:
+```{r,echo=FALSE}
+f <- function(x)  {
+  return(3+2*(x-1)+7*(x-1)^2)
+}
+```
+```{r}
+f(2)
+```
+
+
+(b) $\displaystyle g(x)=\frac{3x^2}{2+x^2}$
+
+(c) $h(x)=2e^{0.1x}$  *Hint: Use the `exp()` function in R.*
+
+(d) $p(t)=2\ln(t-5)$  *Hint: Use the `log()` function in R.*
+
+*Summary: You have coded some simple mathematical functions.  These can be useful when transforming data stored in vectors.*
+
+## Named Inputs to R Functions
+
+Functions in R have one quirk that is shared by few other programming languages.  The function inputs are *named*, and using those names overrides the order in which you type in the inputs.  Here is a simple example:
+
+```{r}
+f <- function(x,y) {
+  return(x)
+}
+```
+
+In almost any other programming language, we would interpret this function in plain language as "the function that takes two inputs, ignores the second, and returns the first one".  And indeed, that is what R seems to do.
+
+```{r}
+f(5,1)
+f("dog","cat")
+```
+
+But now let's type in the inputs slightly differently, specifying which is `x` and which is `y`.
+
+```{r}
+f(y=5,x=1)
+```
+
+So here, even though 5 is the first input, it is discarded, and the value that has been specified as the `x` value is the one that is returned.  So how do we interpret this function's behavior in plain language?  This is "the function that takes two inputs `x` and `y` and returns `x`, with a default behavior of assuming the first input is `x`, unless the user specifies which input is `x` with a name."  So, that is somewhat more complicated because it assumes a default behavior in the absence of information from the coder.
+
+R will produce an error if multiple inputs are provided for a single variable (try it!)
+
+```{r,eval=FALSE}
+f(x=5,x=1)
+```
+
+or if a variable that is used is not specified (try this one too!)
+
+```{r,eval=FALSE}
+f(y=5)
+```
+
+However, if all of the needed variables are present, the function will behave normally:
+
+```{r}
+f(x=5)
+```
+
+But, if more than the needed variables are present, the function will produce an error (try it!).
+
+```{r,eval=FALSE}
+f(x=5,y=3,z=42,w="cats")
+```
+
+*Summary: Variable inputs to functions carry names and these can be used to reorder the inputs to a function however you like.  In your written submission for this assignment, indicate that you have read this exercise.*
+
+## Default Input Values
+
+You can specify default values for input variables to functions using `=` in the function's variable list.  For example,
+
+```{r}
+f <- function(x,y=3) {
+  return(x*y)
+}
+```
+
+sets a default value of `3` for the variable `y`.  If the user specifies `y` then `f` returns `x*y`.
+
+```{r}
+f(5,4)
+```
+
+If the user does not specify `y`, then `f` assumes `y` is `3` and computes `x*y` anyway.
+
+```{r}
+f(5)
+```
+
+Default input values are tremendously useful when one input will be a certain value most of the time.  Defaults are also useful when the function will normally make a decision about the value of a variable based on the other variables, and experienced users can override that decision by setting their own value.  And defaults are also useful for setting options, such as whether to print an output to the screen or to a file.
+
+*Summary: Default values for input variables are simple and powerful tools for expanding the behavior of functions.  For your written submission for this assignment, indicate that you have read this exercise.*
+
+## Function Scoping
+
+Can a function use a variable defined outside of the code block of the function?  What variables can a function modify?  How does the function variable naming affect other variables defined before the function?  In this exercise, run the code blocks to see what happens; some produce errors.
+
+(a) Execute the code block and answer the following.  We stored `2` in the variable `x` before defining `f`; did that affect `f` in any way, or `x` in any way?  *Note*: The `x` used as the input to `f` can be thought of as being bound to `f`.  So the `x` in `function(x)` is not the same object as `x`, it's more like `f~x`, and thus is distinct from `x` and treated differently.
+
+```{r}
+x <- 2
+f <- function(x) {
+  return(x^2)
+}
+x
+f(3)
+```
+
+(b) Can we change the value of an input variable inside the body of a function?  Execute the following to find out.
+
+```{r}
+f <- function(x) {
+  x <- 5
+  return(x^2)
+}
+f(3)
+```
+
+(c)  Can we use a variable defined before a function in the body of the function?
+
+```{r}
+y <- 3
+f <- function(x) {
+  return(x*y)
+}
+f(5)
+```
+
+(d) Can we change a variable defined before a function in the body of the function?  In what sense?
+
+```{r}
+y <- 3
+f <- function(x) {
+  y <- 5
+  return(x*y)
+}
+f(5)
+y
+```
+
+*Note*: This behavior can be confusing.  When `y` is used inside the body of `f`, we are more or less creating a new copy of `y` bound to `f`, sort of `f~y`.  We changed `f~y` inside the body of `f` and used it.  But, we didn't change `y`.
+
+(e) But really, can we change a variable defined before a function in the body of the function?
+
+```{r}
+y <- 3
+f <- function(x) {
+  y <<- 5
+  return(x*y)
+}
+f(5)
+y
+```
+
+*Note*:  This is almost exactly the same code, replacing `<-` by `<<-`.  The double arrow head tells R to refer back to the earlier defined `y` and not use `f~y`.  This is both a very dangerous and very useful tool.  Dangerous because usually functions are limited to producing outputs and not changing earlier defined variables.  Useful, because it can change the values of very large data sets in place, without making an entirely new copy `f~y` of a massive data set.  And that can both speed up your code and reduce your memory needs.
+
+*Summary: You have experimented with scoping of functions.  Try some more experiments to make sure you understand how this works.  And be very, very cautious when using `<<-`.*
+
+## If Statements
+
+The `if` statement in R causes a branching in code.  Normally execution would process line 1, then line 2, and so forth.  The `if` statement gives a few options for a line or chunk, and it asks for conditions for using one option rather than another.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+a <- 3
+if (a < 5) {
+  a <- a^2
+}
+a
+```
+
+*Note:* Here, only one option has been give for the middle line.  However, it is wrapped in an `if` statement.  The default other option is to do nothing.  Try changing the value stored in `a` to 7 and re-running the code chunk to see what happens.
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+a <- 3
+if (a > 5) {
+  a <- a^2
+} else {
+  a <- sqrt(a)
+}
+a
+```
+
+*Note:* The placement of the `else` statement is important in R.  If you place the `else` on the beginning of the next line down you will encounter an error.
+
+(c) You may want several branches.  Execute the following to see what happens.
+
+```{r}
+a <- 3
+if (a > 5) {
+  a <- 0
+} else if (a < 0) {
+  a <- -1
+} else {
+  a <- 1
+}
+a
+```
+
+*Summary: You've learned about the `if` statement in R, a valuable code flow control tool.*
+
+## Functions With If
+
+(a) `if` control statements pair nicely with functions.  Execute the following code chunk to see what happens.
+
+```{r}
+f <- function(x) {
+  r <- 0
+  if (x>5) {
+    r <- 1
+  }
+  return(r)
+}
+f(-1)
+f(8)
+```
+
+*Note:*  There are several ways to write this function.  I gave a default value of 0 and stored it in `r`, and then asked if a certain exception held and if it did, then change `r`.  The return is `r` at the end.
+
+(b) Write an R code chunk defining the following function and test it on the inputs $-2$, $0.5$, and $4$.  Use the `if` control statement.  
+$$f(x)=\left\{\begin{array}{ll}0&x<0\\ 1-x^2&0\leq x\leq 1\\ x-1&x>1\end{array}\right. $$
+Output of tests:
+```{r,echo=FALSE}
+f <- function(x) {
+  r <- 0
+  if ( (x>= 0) & (x<= 1) ) {
+    r <- 1-x^2
+  }
+  if ( x>1) {
+    r <- x-1
+  }
+  return(r)
+}
+```
+```{r}
+f(-2)
+f(0.5)
+f(4)
+```
+
+*Summary: You've seen examples of using `if` statements inside function bodies.  This is very common when processing data for use.*
+
+## Vectorizing Functions
+
+One reason to write functions is to easily reuse the code performed by the function.  And when we reuse that code, we would like it to be the case that we only have to alter the code once, and it will update in all locations where it is used.  Functions do that!
+
+When we reuse code, we often want to apply it repeatedly to all of the elements of a vector.  Functions with this behavior are called *vectorized*.  There is a logical problem with this, though.  When `x` is a vector and `f` is a function, should writing `f(x)` apply the function to the vector `x` or apply `f` repeatedly to each individual element in `x`?  As an example, when we compute `length(1:4)`, should the computation return `4` (the length of the vector) or `c(1,1,1,1)` (the length of each of the elements)?  R uses the default behavior that the function applies to the vector.  We can change that default behavior in two ways: define `f` using functions that are already vectorized, or explicitly tell R that `f` should be vectorized.
+
+(a) Execute the followigng code chunk to see what happens.  Is `f` vectorized?
+
+```{r}
+a <- 1:10
+f <- function(x) {
+  x^2
+}
+f(a)
+```
+
+(b) Execute the following code chunk to see what happens (it should produce an error).  Is `f` vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+f(a)
+```
+
+(c) Modify the previous code chunk as follows and execute it.  Is `f` vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+f <- Vectorize(f)
+f(a)
+```
+
+*Note:* Note the capitalization of the `Vectorize` command.
+
+(d) Modify the code chunk in (b) in the following way and execute it.  Does it produce output as if `f` is vectorized?
+
+```{r,eval=FALSE}
+a <- 1:10
+f <- function(x) {
+  r <- 0
+  if (x>0) r <- x^2
+  r
+}
+sapply(a,f,USE.NAMES = FALSE)
+```
+
+*Summary: Vectorizing functions is useful when processing data stored in vectors.*

@@ -1,0 +1,370 @@
+# Day 6: Data Frames
+
+## The Iris Data Set
+
+
+(a) Load the `iris` data set by evaluating the following code chunk.
+
+```{r}
+data("iris")
+```
+
+(b) Before doing *anything* else with `iris`, examine it in the environment pane in RStudio.  Is there anything peculiar?  Does it even appear to be a data set?
+
+(c) Now execute the following code chunk.
+
+```{r}
+summary(iris)
+```
+
+Re-examine `iris` in the environment pane.  What has changed?
+
+*Note:* `iris` is one of R's built-in data sets.  This is typical behavior when loading these data sets; just be aware!
+
+
+## Subsetting Data Frames: Written Examples in Base R and the Tidyverse
+
+In this exercise we'll work with the `iris` data set loaded into R as a data frame.  Write R code chunks to answer each of the following.  Do *not* answer by visually examining the data set in the viewer!  Use code to produce the answers.
+
+Also in this exercise, I'll provide you with my code as answers, in two forms: base R, and using `tidyverse` functions.  You'll need to install `tidyverse` and load it:
+
+```{r}
+library(tidyverse)
+```
+
+For parts (b) through (e), type both versions of the code in yourself, execute it, and make sure you understand it (and get the same answers, of course!).
+
+(a) Load the data set `iris`.
+
+```{r,echo=FALSE}
+data("iris")
+```
+
+(b) How many of the observations in `iris` have a `Sepal.Length` greater than 6.5?
+
+Base R:
+
+```{r}
+sum(iris$Sepal.Length>6.5)
+```
+
+Tidyverse:
+
+```{r}
+iris %>% filter(Sepal.Length>6.5) %>% nrow()
+```
+
+(c) Among the observations of the *setosa* species, what is the maximum petal length?
+
+Base R:
+
+```{r}
+max(iris$Petal.Length[iris$Species=="setosa"])
+```
+
+Tidyverse:
+
+```{r}
+iris %>% filter(Species=="setosa") %>%
+  pull(Petal.Length) %>%
+  max()
+```
+
+(d) Among the observations with sepal width less than the mean sepal width, what is the mean petal width?  
+
+Base R:
+
+```{r}
+mu <- mean(iris$Sepal.Width)
+mean(iris$Petal.Width[iris$Sepal.Width < mu])
+```
+Tidyverse:
+
+```{r}
+iris %>% filter(Sepal.Width < mean(Sepal.Width)) %>%
+  pull(Petal.Width) %>%
+  mean()
+```
+
+(e) Among the observations with petal length within 1 standard deviation of the mean petal length, how many observations are the *virginica* species?
+
+Base R:
+
+```{r,echo=FALSE}
+mu <- mean(iris$Petal.Length)
+s <- sd(iris$Petal.Length)
+sum(iris$Species[abs(iris$Petal.Length-mu)<s] == "virginica")
+```
+
+Tidyverse:
+
+```{r}
+iris %>% 
+  filter(
+    abs(Petal.Length -mean(Petal.Length))<sd(Petal.Length)
+  ) %>%
+  filter(Species == "virginica") %>%
+  nrow()
+```
+
+*Note:* Subsetting is a powerful data analysis tool, and is one of the most often used in practice.
+
+## Subsetting Data Frames: Your Turn
+
+Load the `iris` data set and answer the following questions.  Adequate: provide code in base R or `tidyverse` to give the answer.  Exceptional: provide both.
+
+(a) What is the minimum sepal length of the versicolor species?  Answer:
+
+```{r,echo=FALSE}
+iris %>% filter(Species == "versicolor") %>%
+  pull(Sepal.Length) %>% 
+  min()
+```
+
+(b) What is the maximum petal length of the irises with sepal length less than 6 and sepal width less than 3?  Answer:
+
+```{r,echo=FALSE}
+iris %>% filter(Sepal.Length < 6) %>%
+  filter(Sepal.Width < 3) %>%
+  pull(Petal.Length) %>%
+  max()
+```
+
+(c) How many of the setosa species have a petal width within 1 standard deviation of the mean of the petal widths of all of the flowers in the data set?  Answer:
+
+```{r,echo=FALSE}
+iris %>% 
+  filter(
+    abs(Petal.Width - mean(Petal.Width))<sd(Petal.Width)
+  ) %>%
+  filter(Species == "setosa") %>%
+  nrow()
+```
+
+(d) How many irises in the data set have a petal length greater than the average petal length and a sepal length less than the average sepal length?  What species are they?  Answer:
+
+```{r,echo=FALSE}
+library(kableExtra)
+iris %>% filter(Petal.Length > mean(Petal.Length)) %>%
+  filter(Sepal.Length < mean(Sepal.Length)) %>%
+  nrow() %>%
+  print()
+iris %>% filter(Petal.Length > mean(Petal.Length)) %>%
+  filter(Sepal.Length < mean(Sepal.Length)) %>%
+  select(Species) %>%
+  table() %>%
+  kable("latex")
+```
+
+## Formatting Variables in Data Frames
+
+In this exercise we'll work with the Motor Trends car data set `mtcars`.  It is included in R and can be loaded in the same way that `iris` was loaded.
+
+(a) Load the `mtcars` data set and summarize it.
+
+```{r}
+data("mtcars")
+summary(mtcars)
+```
+
+(b) Examine the `cyl` variable.  How many unique values are there?  *Hint:* Use the `unique()` function.  Answer:
+```{r,echo=FALSE}
+length(unique(mtcars$cyl))
+```
+
+(c) The `cyl` variable should probably be treated as a factor variable, not numeric.  To convert, you can use the base R code chunk
+
+```{r}
+mtcars$cyl <- factor(mtcars$cyl)
+```
+
+or the tidyverse code chunk
+
+```{r}
+mtcars %>% mutate(cyl = factor(cyl)) -> mtcars
+```
+
+Once you have executed one of these code chunks, summarize the data set again.  What changes do you see in the summary entry for the `cyl` variable?  *Note:*  There are two steps in this process.  First, we convert `cyl` to a factor, and then we store that new data vector in place of the old one.  If we don't carry out the storage step, nothing in the original data frame will be changed!
+
+(c) Inspect the remaining variables in `mtcars`.  If you find that any should be treated as factors, document your evidence for your findings, and then convert those variables to factors.
+
+(d) Among cars with 6 cylinders, what is the highest fuel efficiency (highest `mpg`)?  Which car or cars achieves this maximum?  Answer:  Highest fuel efficiency is
+
+```{r,echo=FALSE}
+mtcars %>% filter(cyl == 6) %>%
+  pull(mpg) %>%
+  max()
+```
+and this is achieved by
+
+```{r,echo=FALSE}
+mtcars %>% filter(cyl == 6) %>%
+  filter(mpg == max(mpg)) %>%
+  row.names()
+```
+
+
+(e) Among cars with fuel efficiency (`mpg`) greater than 20 mpg, how many have four cylinder engines?  Answer:
+
+```{r,echo=FALSE}
+mtcars %>% filter(mpg > 20) %>%
+  filter(cyl == 4) %>%
+  nrow()
+```
+
+(f) Give a table of number of cylinders versus number of gears.  Answer:
+
+```{r,echo=FALSE}
+mtcars %>% mutate(cyl=factor(cyl),gear=factor(gear)) %>%
+  select(cyl,gear) -> temp
+kable(table(temp$cyl,temp$gear),format="latex")
+```
+
+
+## Building Your Own Data Frame
+
+You can build a data frame from component vectors.  You can also create new variables (or columns) and include them in the data frame.  In this exercise you'll step through those processes.  *Note:*  We often build our own data frames.  This might be from data we have collected from distinct sources.  Or, we might be synthesizing data as in this exercise, so that we can test some code we have written.
+
+(a) Create two vectors `x` and `noise` as described in the code chunk below.  Make sure you know what all of the commands are doing and what values are stored in the vectors.  *Note:*  We'll use the `set.seed` function to make sure that our results are the same, even though we are drawing random values for `noise`.
+
+```{r}
+set.seed(1234)
+n <- 100
+x <- seq(from=-2,to=2,length.out=n)
+noise <- rnorm(n,mean=0,sd=0.5)
+```
+
+(b) Create a data frame by using the `data.frame` command and store it in the variable `test` as shown in the following code chunk.
+
+```{r}
+test <- data.frame(x = x, noise = noise)
+```
+
+(c) Inspect the data frame you just created by using the `summary` and `head` functions.  Does it appear as you expect?
+
+(d) Find the mean of `x` in the data frame.  Answer:
+
+```{r}
+mean(test$x)
+```
+
+(e) Find the median and standard deviation of `x` as well.  Standard deviation in R has the function name `sd` and the median is the 50th percentile, which can be found using the `quantile` function.  Answer:  The median is `r quantile(test$x,0.5)` and the standard deviation is `r sd(test$x)`.
+
+(f) Create a new feature (variable) in `test` using the following code chunk.  Make sure you understand what is going on here!
+
+```{r}
+test$y <- 2 + (1/2 * test$x) + test$noise
+```
+
+(g) Plot `y` versus `x` in a scatterplot using the following code chunk.  Does the plot appear as you expect?  What is the equation of the line this data should approximately follow?  Look back at how we constructed `y` for a clue.
+
+```{r,eval=FALSE}
+plot(test$x,test$y)
+```
+
+## More Building Your Own Data Frame
+
+
+Build a data frame with three variables:
+
+* `x` - an evenly spaced sequence of 200 numbers from 0 to 10.
+* `y1` - $y$ values generated by the formula $y=-4+2x$.
+* `y2` - $y$ values generated by the formula $y=(x-5)^2$.
+
+To demonstrate that you have correctly constructed the variables in your data frame,
+
+(a) Summarize the data frame with `summary`.
+(b) Plot `y1` versus `x`.
+(c) Plot `y2` versus `x`.
+
+## Using read.csv to Load Data Frames from URLs
+
+**Loading data from those interwebs** - You can easily load a data set stored remotely as a `.csv` file using the standard R functions.  In this exercise you'll load a machine hardware data set and perform some elementary cleaning operations.  This is a long exercise, but has a great deal of practical information.
+
+(a) Load the data set using the following code block.  *Note:*  If you copy and paste from this homework set into your own RMarkdown document, you may need to adjust the spacing for the URL.  Some OS's will convert the broken line into a linebreak character, and this causes an error when executing the code.
+
+```{r}
+rawdata <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data")
+```
+
+(b) Inspect the data.  Most of the variable names probably make little sense and may even look like errors; that's because they are.  In many repositories, the data and the metadata (the data about the data) are separated.  It's important to understand the metadata first.  For this data set, you can load and view the metadata using
+
+```{r,eval=FALSE}
+metaraw <- read.delim("https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.names")
+View(metaraw)
+```
+
+*Note:* `View` opens a new viewing tab in RStudio; you can switch back and forth between that and your RMarkdown file by clicking on the tabs.
+
+(c) Scroll through the metadata.  Find the variable names and descriptions.  Create a character vector of meaningful variable names for the columns in your data frame and store it in a variable.  That code chunk should look something like
+
+```{r,eval=FALSE}
+meaningful_names <- c("first.variable.name","second.variable.name",...)
+```
+
+```{r,echo=FALSE}
+meaningful_names <- c("a","b","c","d","e","f","g","h","i","j")
+```
+
+
+(d) Now that you have meaningful variable names you can reload the data set and assign good names to it.  Make sure that your variable names are descriptive.  Variable names should have no spaces and should begin with a character; this helps prevent issues down the road.
+
+```{r}
+rawdata <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data",header=FALSE)
+names(rawdata) <- meaningful_names
+```
+
+Inspect your data set using the `head` function to make sure that the variable names appear as you wish.
+
+(e) **Missing values** - If you visit the data's page description at [https://archive-beta.ics.uci.edu/ml/datasets/computer+hardware](https://archive-beta.ics.uci.edu/ml/datasets/computer+hardware), the description seems to indicate that there are some missing values in the data set.  However, the metadata seems to indicate that there are no missing values.  So... which is it?  *Note: This problem is common-ish in publicly available datasets.  Data or metadata is updated in one location and not in another.  You learn to deal with it.*  The page indicates that incomplete values are coded as 0's, but given that there was already some confusion about whether some values are missing, let's play it safe and look for NA values as well.  So let's go fishing!
+
+First, look for incomplete cases with
+```{r}
+which(!complete.cases(rawdata))
+```
+
+Finding none, let's move on to locating any zero values in the data frame.
+
+```{r}
+nrow(which(rawdata == 0,arr.ind=TRUE))
+```
+
+Hmm, we found some.  We'd like to remove those rows.  How?  One easy way is to convert all of the zero values to NA's, then select only the complete case rows.
+
+```{r}
+rawdata[which(rawdata==0,arr.ind=TRUE)] <- NA
+```
+
+Now look for incomplete cases?
+
+```{r}
+which(!complete.cases(rawdata))
+```
+
+And let's remove those and store the resulting data frame in a new variable.
+
+```{r}
+cleandata <- rawdata[ complete.cases(rawdata), ]
+```
+
+(f) Compare the number of rows (records) of `rawdata` and `cleandata`.  How many rows were removed?
+
+(g) Plot the published relative performance versus the cache memory in kilobytes.  Is there a relatively clear pattern relating the two?
+
+(h) Write your cleaned data set out to a file using
+
+```{r}
+write.csv(cleandata,"cleandata.csv",row.names = FALSE)
+```
+
+You should also clean up your environment using the `rm` function.  For instance, here I would use
+
+```{r}
+rm(cleandata,metaraw,rawdata,meaningful_names)
+```
+
+
+*Note:*  That was a lot!  My hope is that this exercise clarifies why data wrangling - cleaning, formatting, transforming - can be such a challenge.  And this was a relatively tame example!  There is a lot going on in exercise 8, so make sure that you go back with the goal of thoroughly understanding the code and how it affects the data set.
+
+You can find the UCI Machine Learning Repository at [https://archive-beta.ics.uci.edu/](https://archive-beta.ics.uci.edu/).
+

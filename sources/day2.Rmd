@@ -1,0 +1,434 @@
+# Day 2: Data Containers - Vectors and Lists
+
+## Vectors in R
+
+(a) Use an R code chunk to write the vector `c(3,2,5,0)` and store it in the variable `x`, then print it out with the command `x`.
+```{r}
+x <- c(3,2,5,0)
+x
+```
+
+
+(b) Evaluate `x^2` and `exp(x)`.  What happens?  Numerical answer for $x^2$:
+```{r,echo=FALSE}
+x^2
+```
+
+
+(c) Use an R code chunk to write the vector `c(-2,-1,-4,1)` and store it in the variable `y`.  Then evaluate `x+y`.  What happens?  Numerical answer:
+```{r,echo=FALSE}
+y <- c(-2,-1,-4,1)
+x+y
+```
+
+(d) Take a moment and write in plain language how R seems to handle arithmetic with vectors.
+
+(e) Vectors may be non-numerical as well.  Use an R code chunk to store the vector `c("apple","banana","cat")` in the variable `L`.
+
+```{r,echo=FALSE}
+L <- c("apple","banana","cat")
+```
+
+(f) Elements of vectors must have the same type of data throughout, and R will enforce that.  Because everything can be written as a string, this can often mean that one string in a vector forces all of the other entries to be converted to strings.  Execute the following chunk of code to see this in action.
+
+```{r}
+a <- c(1.2,"cat",TRUE)
+a
+```
+
+(g) You may use `c()` to concatenate vectors into a single vector.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(1,3,5)
+b <- c(2,4,6)
+together <- c(a,b)
+together
+```
+
+What would have happened if we replaced `c(a,b)` by `c(b,a)`?  Try it!
+
+*Summary: You've seen a few vectors in R, both numerical and character.*
+
+## R Commands for Building Vectors from Patterns
+
+(a) You can create a *range* of values using `:`.  Execute the following chunk of code to see what happens.
+
+```{r}
+a <- 1:5
+a
+b <- -4:7
+b
+```
+
+(b) You can create a vector of a pattern of values using the `seq` command.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- seq(1,13,by=2)
+a
+b <- seq(-1,1,length.out=20)
+b
+```
+
+(c) In many cases you can use vectorized arithmetic to create sequences quickly.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- 3*(1:8)
+a
+```
+
+(d) You can create a vector with one element repeated many times using `rep`.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- rep("red",10)
+a
+```
+
+*Note:* the `rep` command - repeat - can be useful for labeling data in data frames.
+
+*Summary: You've investigated a few techniques for building vectors from patterns.*
+
+## Recycling Vectors
+
+R exhibits a peculiar behavior with respect to arithmetic of vectors, called *recycling*.  It is occasionally useful in practice.  More often, it causes code to execute in ways that seem strange unless you are aware of this behavior.  So let's raise awareness...
+
+(a) Use an R code chunk to store the vector `1:4` in `a` and `5:8` in `b`.
+
+```{r,echo=FALSE}
+a <- 1:4
+b <- 5:8
+```
+
+(b) Now execute the following code chunk to see what happens when we multiply `a` and `b`.
+
+```{r}
+a * b
+```
+
+(c) Next, store the vector `c(-1,1)` in `b` and compute `a * b`.  Answer:
+
+```{r}
+b <- c(-1,1)
+a * b
+```
+
+*Note:*  This is *recycling* in action.  When executing `a * b`, the first two values are multiplied, then the second two, and so on.  If one vector "runs out" of values, then R simply returns to the beginning of that vector for the next value and cycles through again.  This continues until all the values in the longer vector have been used.  In other programming language that uses vectorized arithmetic, like Python with `numpy` or Matlab, this code would usually lead to an error because the dimensions of the vectors do not match.  Just one of the quirks of R.
+
+(d) Execute the following code chunk to see what happens.
+
+```{r}
+1:5 * c(-1,1)
+```
+
+*Note:*  R provides a warning when the shorter vector is not a multiple of the longer vector, but it uses the recycling behavior anyway.
+
+*Summary: You've experimented a bit with vector recycling, an unexpected behavior in R.*
+
+## Factors
+
+A special - and incredibly important! - type of vector is a *factor*, also known as a categorical variable.  A factor is a vector whose entries represent categories to which a data entry belongs.  The categories in a factor are known as its *levels*.  A great way to think about factors is as responses to multiple choice questions.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("A",10),rep("B",5),"C","C")
+b <- factor(a)
+a
+b
+```
+
+*Note:* The factor `b` prints the levels as well as the entries.
+
+(b) Extract the levels of `b` by executing the following code chunk.
+
+```{r}
+levels(b)
+```
+
+(c) Factors are stored differently than character vectors.  Execute the following code chunk:
+
+```{r}
+as.numeric(b)
+```
+
+*Note*: The first entry here tells us that the level recorded in that entry of the vector is the first level in the factor's `level` list.  We can find the name of that first level with
+
+```{r}
+levels(b)[1]
+```
+
+Storing factors as short integers allows us to store a lot of data with very little computer memory...as long as that data is appropriate for a factor, having only a few levels.
+
+(d) In some cases this clever storage can create some unintended stumbling blocks.  Execute the following: 
+
+```{r}
+c("Hello there!",b[1])
+```
+
+Note that `b[1]` was treated as a `1`, and then cast to a string because of the presence of the other string `"Hello there!"`.  If you want to make sure that `b[1]` appears as `"A"` you should convert it to a character first:
+
+```{r}
+c("Hello there!",as.character(b[1]))
+```
+
+*Summary: You experimented with factors, a special type of vector in R.  Explicitly distinguishing factors is crucial to the operation of many data operations in R, including the creation of meaningful graphics.*
+
+## Functions Summarizing Vectors 
+
+Some functions in R take vectors as inputs and produce single numbers as outputs.  In this exercise I'd like you to look up the documentation for the `sum` and `length` functions in R.  Then, for the vector `x <- 1:100`, compute the sum of `x`, the length of `x`, and the mean of `x`.  Answer for mean of $x$:
+```{r,echo=FALSE}
+mean(1:100)
+```
+
+*Summary: You read documentation about three summary functions for vectors.  Reading documentation is one of the most important skills you can acquire as a computational data analyst.  There's always new software or a new library to learn.*
+
+## Extracting Elements From Vectors 
+
+(a) Write and evaluate the following R code chunk to build a vector `x`.
+```{r}
+x <- 3*(1:10)
+```
+
+(b) Write a code chunk that extracts the first three elements of `x`.  There are many ways to do this; here are a few.
+
+```{r}
+x[c(1,2,3)]
+x[1:3]
+head(x,3)
+```
+
+*Note: Since `1:3` is shorthand for `c(1,2,3)` the first two here are really the same.  But `1:3` is easier to type if the number had been larger, like `1:1000`.*
+
+(c) Write a code chunk that extracts the last three elements of `x`.  *Hint: `tail()` function.*
+
+(d) Write a code chunk that extracts the 1st, 5th, and 7th elements of `x` in one vector.  Answer:
+```{r,echo=FALSE}
+x[c(1,5,7)]
+```
+
+(e) Write a code chunk that attempts to extract the 2nd, 4th, and 13th elements of `x` in one vector.  What goes wrong, and why?
+
+*Summary: In this exercise you experimented with extracting elements from vectors using their positions in the vector.*
+
+## Extracting Elements With Logicals
+
+Use `x <- 1:20` to create a vector and store it in `x`.  Then,
+```{r,echo=FALSE}
+x <- 1:20
+```
+
+
+(a) Evaluate `x[x^2<10]` in a code chunk.  The output should be much shorter than the vector `x` and it should include only values from `x`.
+
+(b) To figure out what the code in (a) is doing, let's break it down.  The code splits naturally into two pieces.  The *filter* is the logical vector `x^2<10` and the data vector is `x`.  Execute the following code chunk to see what the filter is doing:
+
+```{r}
+x^2<10
+```
+
+How many of the filter's entries are `TRUE`?  And in which positions of the vector do they fall?
+
+(c) Now execute the code chunk
+
+```{r}
+filter <- x^2<10
+x[filter]
+```
+
+(d) And now put it all together in a single line.
+
+```{r}
+x[ x^2<10 ]
+```
+
+*Note:  Sometimes it can be helpful to avoid intermediate variables, like `filter` in part (c).  These variables are held in your environment until released, using valuable system resources and visually cluttering up RStudio.  On the other hand, in some cases intermediate variables can be very helpful for readability and code testing.  It's a judgement call!  You'll figure this out as you get more experience working in R.*
+
+(e) Find all of the values in the vector `x` that satisfy the inequality $|x-12|\leq 4$.  Absolute value is a function in R, `abs`.  Answer:
+```{r,echo=FALSE}
+x[ abs(x-300)<= 25 ]
+```
+
+*Summary: You experimented with extracting elements from a vector with logical vectors, called filters.  Filtering is a tremendously important operation.  We'll see it come up again in this homework and throughout the course.*
+
+## Extracting Elements from Vectors: Positions or Values? 
+
+In some cases, we don't need to know the *values* in a vector that satisfy some filter, but we need to know their *positions* in the vector.  Note that the position of a value in a vector is often called its *index*.  *Although in some database contexts an index is a reference key.*
+
+Use `x <- 2*(1:10)` to create a vector and store it in `x`.  Make sure you know what the vector `x` contains!  Then,
+```{r,echo=FALSE}
+x <- 2*(1:10)
+```
+
+(a) Evaluate `which(x^2<75)` in an R code chunk.  Describe what this returns, and in particular, did it return positions in the vector or values from the vector?  Answer:
+```{r,echo=FALSE}
+which(x^2<75)
+```
+
+(b) Which indices in `x` have data satisfying the inequality $|x-4|<3$?  Use an R code chunk and the `which` function to determine your answer.  *Remember, the indices are the positions in the vector, not the values.  So your answer here should look like "the third and fifth entries" or something along those lines.*  Answer:
+```{r,echo=FALSE}
+which( abs(x-4) < 3 )
+```
+
+*Summary: You experimented with the `which` function, which returns the positions of data in a vector meeting a logical condition.*
+
+## Extracting With Conditions From Corresponding Vectors
+
+Suppose we have collected data about some children.  For each child, we have measured their age in years and their height in inches.  We have stored this data in two corresponding vectors, along with a fictional name,
+
+```{r}
+age <- c(10,8,5,11,10,6,5)
+height <- c(52,48,41,60,54,43,43)
+ID <- c("Billy Bob","Bobbie Sue","Bobbie Jo",
+        "Joe Bob","Randy Bobby","Bobby Randy",
+        "Bobbie Jo Randee")
+```
+
+By *corresponding*, I mean that the first entry in each vector refers to child 1, the second entry in each vector refers to child 2, and so on.  So Billy Bob (child 1) is age 10 and 52 inches tall.
+
+Write these vectors in an R code chunk and execute.  Then,
+
+(a) A member of your data team executes the expression `age[ height>62 ]`.  What question are they trying to answer?  How many entries does the result have?
+
+(b) Write an R code chunk to find the ages of all children taller than 50 inches.  Answer:
+```{r,echo=FALSE}
+age[ height > 50 ]
+```
+
+
+(c) Write an R code chunk to find the heights of all children under 10 years of age.  Answer:
+```{r,echo=FALSE}
+height[ age < 10 ]
+```
+
+
+(d) Let's return to your teammate's code, `age[height>62]`.  How does the code `age[which(height>62)]` compare?  Does it produce the same result?
+
+(e) Hmm.  That last exercise raises a question of why we need the `which` function in R.  Let's compare two ways to filter for children with heights greater than 62 inches.  Evaluate the expressions `height>62` and `which(height>62)`.  Clearly one is shorter to type, but what are the other differences?  In particular, would one be easier to store in a file than the other?
+
+(f) The `which` function has some related functions, `which.max` and `which.min`.  Read the R documentation for these functions, and then use them to find the indices of the tallest and shortest children in the data.  Answer for tallest:
+```{r,echo = FALSE}
+which.max(height)
+```
+
+(g) Use your results from part (f) to find the ages and names of the tallest and shortest children in the data set.  Answer, age and ID of tallest:
+
+```{r,echo=FALSE}
+age[which.max(height)]
+ID[which.max(height)]
+```
+
+
+*Note:* We could have answered any of these questions by a simple inspection of the data set, because it has very few records.  In order to learn the software, make sure that you are always performing your work as if the data has millions or billions of records.  Do your results rely at any point on a visual inspection?  Can you work around that?  These are questions we will ask ourselves throughout the course.
+
+*Summary: You learned to extract information from corresponding vectors by using a filter built from one vector to extract information from others.  Each collection of corresponding information is a record.  For example, Billy Bob with age 10 and height 52 inches tall is a single record in the data set.  We'll soon see how to wrap all of this together in dataframes ... where we will still use the idea of filters built from vectors.*
+
+## Re-leveling Factors
+
+Regardless of the method used to extract data from a vector, factor variables pose additional challenges.
+
+(a)  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("A","A","B","B","C"))
+b <- a[1:4]
+b
+```
+
+(b) In part (a), what are the distinct values in `b`?  What does R state as the levels of `b`?
+
+(c) In some applications we will need to retain the "memory" of the levels from which the subset was taken.  That is, we might need to know that `b` was drawn from a factor with levels `levels(b)`.  This is the reason that R preserves this information by default.
+
+But, in many applications, we simply need to know the levels of `b`.  We can re-level `b` as in the following code chunk.
+
+```{r}
+b <- factor(b)
+b
+```
+
+(d) In some cases we might need to specify an order on the levels of the factors.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("A","A","B","B","C"),
+            levels=c("A","B","C"),
+            ordered=TRUE)
+a
+a <- factor(c("A","A","B","B","C"),
+            levels=c("B","A","C"),
+            ordered=TRUE)
+a
+```
+
+*Note:*  Ordering levels in a factor can be useful in a variety of situations, such as ordering the months in a year or the days in a week.  Ordering levels helps other functions like plotters create structures that are aware of the intended order.
+
+(e) In some cases we may want to rename the levels of a factor.  Execute the following code chunk to see what happens.
+
+```{r}
+a <- factor(c("Level A1","Level B1","Level C1"))
+a
+levels(a) <- c("A","B","C")
+a
+```
+
+*Summary: You experimented with re-levelign factors in a variety of ways.*
+
+## Tables
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("a",10),rep("b",30),rep("c",5))
+table(a)
+```
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+a <- c(rep("a",10),rep("b",30),rep("c",5))
+b <- c(rep("d",20),rep("e",5),rep("f",20))
+table(a,b)
+```
+
+*Summary: You saw a couple of examples of frequency tables.  Frequency tables summarize character or factor data in a clearly readable way.*
+
+## Lists
+
+Vectors in R must contain data that is all of the same class.  Knowing that all of the data in a container is the same class is useful for coders, who can then write functions assuming the data is all numerical, or all character, or all logical.  But, sometimes we will need containers that are able to hold data of different classes.  In R, this type of container is the *list*.
+
+(a) Execute the following code chunk to build a list `a`.
+
+```{r}
+a <- list("apple",1204.73,FALSE)
+```
+
+(b)  Extract the second element of `a` using `a[[2]]`.  Notice the use of the double square brackets to distinguish lists from vectors.
+
+(c) Execute the following code chunk to build a named list `b`.
+
+```{r}
+b <- list(dog="Fido",size=1.2,color="reddish")
+```
+
+*Note*: Named lists are similar to Python dictionaries in some ways.
+
+(d) Execute the following code chunk to see what happens.
+
+```{r}
+b[[1]]
+b[["size"]]
+b$color
+```
+
+*Note:* This gives a few different ways of accessing the elements of a list.  The last method using `$` will be used often when we move to *data frames*, a special kind of list.
+
+(e)  Execute the following code chunk to see what happens.  The object returned is a list.
+
+```{r,eval=FALSE}
+b[1:2]
+```
+
+(f) Execute the following code chunk to see what happens.
+
+```{r}
+b[2:3][[1]]
+```
+
+*Summary: You've experimented a bit with lists and list notation.  Pay close attention to the `$` notation.  It will show up a lot in future exercises.*

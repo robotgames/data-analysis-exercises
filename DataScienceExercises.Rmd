@@ -1,5 +1,5 @@
 ---
-title: "Forty Days and Nights of Data Exercises"
+title: "Forty Days and Forty Nights of Data"
 author: "Dr. C. E. Brown"
 date: "2023-07-07"
 site: bookdown::bookdown_site
@@ -56,13 +56,13 @@ Other notes:
 * Hypothesis testing does not comprise a large component of the course; this was not intended to be an introductory statistics course.  I don't recommend omitting the material in homework 8 entirely, as many metrics for model performance are couched in the language of p-values.  However, the exercises on power estimation and ANOVA can be omitted if time is short.
 * I record video captures of myself working through various R/RStudio tasks.  This is difficult to capture in a static book form and so easy as a video!    
 
-```{r child="sources/hw1.Rmd"}
+```{r child="sources/day4.Rmd"}
 
 ```
 
 
 ```{r,echo=FALSE}
-the_hw_names <- sapply(1:22,function(z) paste0("sources/hw",z,".Rmd"))
+the_hw_names <- sapply(1:4,function(z) paste0("sources/day",z,".Rmd"))
 ```
 
 

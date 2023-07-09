@@ -1,0 +1,197 @@
+# Day 5: Control Loops
+
+*Note:* In coding, loops defined by `for` and `while` control structures play a relatively small role in most data analytics operations.  Conceptually, loops are everywhere!  In the first few exercises, we'll introduce loops, and then examine how to avoid them.  In R, loops are unnecessary when there is an R function that allows us to avoid coding the loop explicitly.  Because these built-in R commands are coded in a lower-level language like C or Rust, they tend to run much faster than loops coded in R.  This distinction tends to be important for students who have learned to code in C or Java and have used loops extensively in their previous coding experiences.  "Well, I know you said that I should avoid `for` loops, but I'm just so comfortable with them..."  Right, but...it's bad practice.  Learn the new things, like vectorizing functions.
+
+Having said all of that, loops show up frequently in system simulations, which in turn show up when we use Monte Carlo methods in our statistical analyses.  So `while` and `for` loops are not forbidden; they are tools with an appropriate use and several inappropriate uses.
+
+## While Loops
+
+In some situations, we wish to perform a code chunk until a stopping condition has been achieved.  In simulations, we sometimes wish to continue the simulation until a specific event has occurred.  As an example, let's simulate a system in which a bug hops right or left with equal probability on the number line until it reaches $\pm 5$.  We will track the number of jumps.
+
+(a) Execute the following code block a few times to see what happens.
+
+```{r,eval=FALSE}
+location <- 0
+time <- 0
+while(abs(location)<5) {
+  time <- time + 1
+  coin_flip <- sample(c(1,-1),1)
+  location <- location + coin_flip
+}
+time
+```
+
+(b) Modify the code block in (a) so that there is a 75% chance of increasing `location` by 1 and a 25% chance of decreasing location by 1.  Then execute it several times to see what happens.  *Hint:* In `sample`, we randomly drew a sample from a vector with 50/50 proportions.  We want to change the proportions so that it is a 75/25 split of 1's to -1's.
+
+(c) The `while` loop consists of two components: a logical test, `abs(location)<5` in the example above, and a block of code enclosed by `{ }`.  Change the logical condition in the code in part (a) - the stopping condition - so that the simulation stops when the location is $\pm 20$ or when the time exceeds 100.
+
+(d) The code in part (a) only tells us the amount of time required to reach a goal.  In some cases we might like to record the entire path of the simulation.  Execute the following code several times to see what happens.
+
+```{r,eval=FALSE}
+location <- 0
+time <- 0
+path <- location
+while(abs(location)<5) {
+  time <- time + 1
+  coin_flip <- sample(c(1,-1),1)
+  location <- location + coin_flip
+  path <- c(path,location)
+}
+path
+```
+
+## For Loops
+
+In some situations, we wish to execute a code chunk a known number of times.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r,eval=FALSE}
+a <- (1:10)^2
+total <- 0
+for (x in a) {
+  total <- total + x
+}
+total
+```
+
+*Note:*  Of course, you could simply have executed `sum(a)` to add the entries of the vector `a`.  Try it and check it against your result from this code chunk.
+
+(b) Modify the previous code chunk so that whenever `total` is larger than 100, the next value of `a` is subtracted instead of added.  Then execute!  Answer:
+
+```{r,echo=FALSE}
+a <- (1:10)^2
+total <- 0
+for (x in a) {
+  if (total <= 100) {
+    total <- total + x
+  } else {
+    total <- total - x
+  }
+}
+total
+```
+
+*Note:* This is more interesting, and certainly can't be performed with a simple operation like `sum`.
+
+## For Loops Simulate Dynamical Systems
+
+*A system changing over time:*  Many systems of practical interest involve **states** (measured quantities) captured over **time**.  In order to compare theory to data, we will need to write models of systems changing over time.  *In mathematics, these models are developed in the fields of differential equations, discrete dynamical systems, and stochastic processes*.
+
+With three ingredients - a computer, `for` loops, and a quantitative model - it can be easy to simulate such a system.  Most fall into the basic pattern **next state = current state + jump**, where **jump** is a function of the current state.  For example, a common model is **next state = current state + 0.10(current state)**.  In plain language, this is a system that grows by 10\% each time unit.  (In the sciences, this is known as *exponential growth*, and can be expressed by an exponential function.)  You can generate twenty new states for this system, starting at a state of 2.2, with the following R code chunk.
+```{r}
+# 
+jump <- function(x) {
+  return(0.10*x)
+}
+# 
+state <- 2.2
+# 
+for (i in 1:20) {
+  x <- tail(state,1)
+  state <- c(state,x + jump(x))
+}
+# 
+print(state)
+plot(state)
+```
+
+(a) I've added hashtags to the code chunk above.  Hashtags in R code chunks are used to add comments in code.  Copy the code chunk above, and add comments at the hashtags to describe the actions of the code following that hashtag and preceding the next hashtag or end of the code chunk.  You can add more hashtags as needed to add comment lines.  Your goal here is to get a clear explanation for each bit of code.
+
+(b) Mimic the code above to create a system that simulates decay by 5\% each time step, begins at state 100, and proceeds for 50 time steps.  Plot the results.  Do they appear to be as they should?
+
+(c) Mimic the code above to create a system that uses a jump with the formula $1.2x(1-x)-x$, begins at state 0.1, and proceeds for 50 time steps.  Plot the results.  Use plain language to describe what is happening with the states of the system over time.
+
+(d) Repeat (c), but replace the `1.2` in the jump with `3.2`.  Use plain language to describe what is happening with the states of the system over time.
+
+*Note:* This is a classic example of a situation requiring a `for` loop.  How do you distinguish such a situation?  Answer the following question: in each repetition of the code in the `for` loop, can I execute the code without knowing the results of the previous pass through the `for` loop?  If so, then I do not need a `for` loop and can use a vectorized function.  But, if I must know the results of the previous pass through the loop, I must use a `for` loop.  Best practice in R is to avoid `for` loops in executing code whenever possible.  In some situations, I have coded a computation twice, once with a `for` loop to explain the code to someone who is more familiar with loops, and then a second time using the more compact but less familiar vectorized function approach to actually run the code.
+
+
+## Avoiding Unnecessary For Loops in R
+
+*For loops and alternatives:*  In this exercise you'll look at a few common operations that *can* be accomplished by a `for` loop, but might be better accomplished by some other means.
+
+(a) Here's a bit of code that uses a `for` loop to add up the first hundred even numbers.
+
+```{r}
+numbers <- 2 * (1:100)
+total <- 0
+for (next_number in numbers) {
+  total <- total + next_number
+}
+print(total)
+```
+
+Mimic this code to write a for loop that adds up the first hundred numbers that are all 1 greater than a multiple of 3 (start from 1).  *The only change should be in the first line of the code defining the vector `numbers`.*  Answer:
+```{r,echo=FALSE}
+numbers <- 3 * (0:99)+1
+total <- 0
+for (next_number in numbers) {
+  total <- total + next_number
+}
+print(total)
+```
+
+(b) Rewrite your code chunk from (a) avoiding the `for` loop by using the `sum` function instead.  Much easier!
+
+(c) **Random walk**:  A bird is hunting for worms on a long, narrow patch of grass.  The bird happens to have a fair coin, because why not?  Each minute, the bird flips the coin and jumps one meter to the right on Heads or one meter to the left on Tails.  Here's a bit of code that simulates the bird's position at each minute for the first twenty minutes (assuming the bird is at position 0 during minute 1).
+
+```{r}
+jumps <- sample(c(1,-1),19,replace=TRUE)
+position <- 0
+for (jump in jumps) {
+  current <- tail(position,1)
+  position <- c(position,current + jump)
+}
+print(position)
+```
+
+Code this and evaluate it several times.  You'll notice that it changes each time, because new random jumps are generated each time.  This can make comparisons across experiments difficult.  To fix this add the line `set.seed(1234)` to the beginning of the code block above and then evaluate several times.  Do you get the same result each time?
+
+(d) The result in (c) is a cumulative sum, which in R is the function `cumsum`.  Try to rewrite the code in part (c) without a `for` loop and using a cumulative sum.  Make sure to use `set.seed(1234)` at the beginning so that the same random numbers are generated.  *Note:* You'll notice that the output of `cumsum` does not include the zero at the beginning of the position vector.  Fix this using the `c()` function.
+
+```{r,echo=FALSE}
+set.seed(1234)
+jumps <- sample(c(1,-1),19,replace=TRUE)
+position <- 0
+print(cumsum(jumps))
+```
+
+(e) **Vectorized functions**: Execute the following code chunk to square each element of a vector.
+
+```{r}
+a <- 1:10
+b <- c()
+f <- function(x) {
+  x^2
+}
+for (x in a) {
+  b <- c(b,f(x))
+}
+b
+```
+
+(f) We know how to vectorize functions and avoid the `for` loop.  Rewrite the code in part (e) using a vectorized function.
+
+*Note:*  It is important to avoid unnecessary loops when coding in R.  This is a common mistake for coders coming from C or Java, because these constructs are so common in those languages and because the surface logic seems identical ... so why not go with the familiar coding paradigm?  Because R is not a compiled language, for loops will run much more slowly in general than equivalent operations such as vector functions like `sum` and vectorized functions.  For example, compare
+
+```{r}
+start_time <- Sys.time()
+total <- 0
+for (i in 1:1e9) {
+  total <- total + i
+}
+end_time <- Sys.time()
+end_time - start_time
+```
+
+with 
+
+```{r}
+start_time <- Sys.time()
+total <- sum(1:1e9)
+end_time <- Sys.time()
+end_time - start_time
+```
+
+*That* is a massive time difference.  If we had to repeat this computation a few million times, the time saving would be vast.  Moral of the story: avoid `for` loops whenever possible.  Again, you can always avoid a `for` loop as long as no calculation in a repetition of the code depends on the results of any earlier repetition of the code.  This is true when we are summing values in a vector or applying a function to every item in a vector, but not true when simulating most dynamical systems.

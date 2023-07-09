@@ -1,0 +1,412 @@
+# Day 1: Introducing Data Analysis and R Syntax
+
+## The First and Last Miles: Visualization
+
+There is an aphorism to the effect that the first and last miles of any data analysis journey is dominated by visualizations.  That's true, or close enough to it.  The first part of a data analytics project - after the data is available to you! - is to explore the data set through summaries, tables, and lots and lots of visualizations.  The last part is to communicate your conclusions and insights to an audience, and this usually involves creating compelling and informative visualizations.
+
+But to be a little more precise, first you have to *get* that data, then analyze it.  In this exercise we'll assume you have access to the data as a `.csv` file (a comma-separated value file), which means that our task is simply to read the data into RStudio.
+
+Create a new code block for R in RStudio and execute the following command:
+
+```{r}
+site <- "https://github.com/"
+repo <- "robotgames/data-analysis-exercises/"
+file <- "raw/main/data/abalone.csv"
+df <- read.csv(paste0(site,repo,file))
+```
+
+This could have been accomplished with one big line, like
+```{r,eval=FALSE}
+df <- read.csv("https://github.com/robotgames/data-analysis-exercises/raw/main/data/abalone.csv")
+```
+but see what happened in the output?  So instead, we worked with chunks of the path to the file and glued them together later.  *Most of the time R simply "knows" when a line continues and so you can just insert line breaks as needed for readability and style.  However, strings act a little differently.  Inserting a line break literally inserts a line break character into the string...which turns out to be bad for a URL.*
+
+You should see that RStudio's Data pane (upper right area of the RStudio app by default) now includes a line with our dataframe name `df` along with some basic information about it (4177 observations of 7 variables).  We can summarize the dataframe:
+
+```{r}
+summary(df)
+```
+
+And once we have done that we know which variables are numeric and which are not.  Let's make a quick scatterplot of `Shell.weight` versus `Length`.
+
+```{r}
+plot(df$Length,df$Shell.weight)
+```
+And we've gotten started on the first mile of our data analysis with this data set!  You probably have many, many questions about the details in this exercise.  We'll flesh those out over the course of several of the early assignments.
+
+*Summary: In this exercise you recreated the code above to read the data and create a plot.  You may not understand why the commands work the way they do, and that's okay for now.*
+
+```{r,echo=FALSE}
+rm(df,file,repo,site)
+```
+
+## Aside: The Data Analysis Process
+
+Let's break down the data analysis process into six discrete stages: Inquiry, Ecology, Processing, Analysis, Communication, and Action.
+
+* **Inquiry** - Ask questions.  Many questions start out vague and broad - "How can we save the world?" and gain specificity during an investigation - "How can we improve the crop yield of this particular grain in this particular region?"  As a data analyst, your goal is to make sure that the questions can be addressed measurable data that is accessible.  The inquiry process may involve some initial data gathering and some exploratory data analysis as the questions under investigation are made more specific.
+
+* **Ecology** - Data exists everywhere in the wild, but you may have to capture it and store it in a zoo for later use.  Understanding what data is out there and how to capture it is a useful skill set.  This process is often known as *data ingestion*, but I prefer the term "ecology" to remind you that data exists in the world **in context**, in a certain system, and that can never be ignored.  The "zoo" where you store your data may be highly structured (relational databases made up of linked collections of tables) or not (a big folder full of web pages, texts of emails, and images).
+
+* **Processing** - Before use in an investigation, the data must be extracted from the zoo and processed.  Data might be problematic in many ways: badly formatted, inconsistent units, stored in different tables, suspiciously out of the range of possibility (a human with a recorded height of 60 feet is probably a data entry error!), or just plain missing.  These issues must be addressed before the data is analyzed.
+
+* **Analysis** - Explore, summarize, visualize, and model the data.  The goal here is to develop responses to the driving questions that are supported by the available data.
+
+* **Communication** - Report the results of the analysis to the appropriate audience.  Communicating results with data is a broad skill set, including: technical skills to create impactful visualizations and animations; design skills to create engaging and aesthetically pleasing supporting materials; critical thinking skills to describe how the conclusions were reached; and communication skills to engage the audience.
+
+* **Action** - Decision makers use the conclusions of the analysis to take action.
+
+We'll also break down data contexts - the real-world situations when we call for data to be analyzed - into three broad categories.
+
+* **One-offs** - There is a particular question and a data set that seems relevant.  Analyze!  In the one-off, we *don't* need to worry about how often the analysis must be repeated.  The one-off is common in experimental sciences, in which the researcher designs an experiment to collect data, performs it, analyzes the data, and reports.  The data is still archived and may be used later, but there is no expectation of that.
+
+* **Updates** - There is a particular question that must be answered, but the answer - and the data that leads to it! - changes over time.  For example, a company may be interested in selecting a strategy from among many possible.  It gathers data and periodically analyzes that data...and may shift strategies when the data indicates.  In this case, *data engineering* is crucial.  The new data must be gathered and processed repeatedly, and so we would like an automated system with monitoring tools to do so.  Reports must be generated periodically or even updated live on websites, and again we would like an automated system with monitoring tools to do this.
+
+* **Question pools** - The analyst is not focused on one question only, but on a related collection of questions - a question pool.  For example, a corporation might have the broad question "How can we increase shareholder value?"  That can be sharpened to many more specific questions, and the organization might be interested in answering any or all of them.  In this case, the focus is strongly on archiving large data sets and making them accessible to the analysts who need them.  This is similar to the **Updates** context in the sense that the focus is on the engineering aspects, but here the focus is strongly on creating robust, flexible computer architectures to store and retrieve data.  Computer security is also important; the data must be accessible to the analysts who need it, not accessible to those who don't, editable by those who need to do so and not editable by those who have no need.  *You can think about this as you would any shared cloud doc.  Who can view it?  Who can edit it?  Can those permissions change over time and who has the authority to change them?*
+
+Okay, so in this class, what's our focus?
+
+* We're not going to be concerned about data engineering in this course.  So we won't worry about how data is stored or accessed, and we won't worry about automating those processes.  Data engineering has a great deal of overlap with software engineering and with database design, and I highly recommend taking courses in those areas if you are interested.  Having said that...
+
+* We will use tools that allow us to repeat our analyses with updated data sets.
+
+* We will focus strongly on the Analysis and Communication aspects of the data analysis process, and somewhat less heavily on the Processing and Inquiry aspects.  Because we focus heavily on Analysis and Communication...
+
+* We will use tools that strongly support Analysis and Communication operations.  Thus the choice of the R language and the RStudio platform.
+
+*Summary: In this exercise you read about the data analysis process.  When you submit your assignment, just indicate that you read this exercise.*
+
+## Aside: The Assignment Writeup
+
+In this class I expect you to create a new RMarkdown document for each new assignment.  You may want to create a new project for each one (I certainly recommend that).  When you write your responses to assignment exercises, you should present code in visible code chunks and you should connect your code chunks with relevant discussion that acknowledges there is a reader who will be viewing your document.  You can comment your code with short notes, but that is not a replacement for the connecting language between code chunks.
+
+That is, get in the habit of thinking of each RMarkdown document as a full-featured document, part of which includes code.
+
+*Summary: You read about the assignment expectations.  In your assignment writeup, indicate that you read and understand this exercise.*
+
+## From Math Expressions to R
+
+The syntax for mathematical expressions in R works as in most spreadsheets and calculators.
+
+Create a new RMarkdown document.  Evaluate each of the following mathematical expressions with a chunk of R code.  For example, if the expression is $3e^{2*1.45-1}$ you would write the chunk of R code:
+
+```{r}
+3*exp(2*1.45-1)
+```
+
+and evaluate to arrive at your answer.  Connect your evaluations with some relevant text, like "this is my answer to part (a)".  *You may have to search to discover how to write some mathematical functions in R.  This is an opportunity to practice searching for technical details about your coding language, an invaluable skill.*
+
+(a) $3\cdot 5^2-2.4\cdot 10^{-1}$  Answer:
+
+```{r,echo=FALSE}
+3*5^2-2.4*10^(-1)
+```
+
+
+(b) $\displaystyle \sqrt{14-10\cdot 0.321}$  Answer:
+
+```{r,echo=FALSE}
+sqrt(14-10*0.321)
+```
+
+
+(c) $\displaystyle \sqrt{\frac{14+5.2}{2.1-0.9}}$  Answer:
+
+```{r,echo=FALSE}
+sqrt( (14+5.2)/(2.1-0.9) )
+```
+
+
+(d) $\displaystyle 0.2\cdot e^{2.4+0.2^2}$ Answer:
+
+```{r}
+0.2*exp(2.4+0.2^2)
+```
+
+
+(e) $\displaystyle \ln(0.2)-\ln(\sqrt{3})$  Answer:
+
+```{r, echo=FALSE}
+log(0.2) - log(sqrt(3))
+```
+
+*Summary: In this exercise you evaluated some mathematical expressions using R like a calculator.  If you're curious about how I formatted the math expressions to look like math expressions ... well, did you do a web search?  Why not?  Try it!  Get in the habit of formulating good search questions and looking for answers to technical questions.*
+
+## Rounding Numbers in R
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+round(1.234)
+round(1.234,1)
+round(1.234,2)
+```
+
+(b) Execute the following code chunk to see what happens.
+
+```{r}
+floor(1.234)
+ceiling(1.234)
+floor(-1.234)
+ceiling(-1.234)
+```
+
+(c) Explain in plain language what `round`, `floor`, and `ceiling` do.
+
+*Summary: You experimented with common rounding functions.*
+
+## Scientific Notation in R
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+7e3
+```
+
+(b) Multiply `2.1 x 10^8` and `3.4 x 10^7`.  Answer:
+
+```{r,echo=FALSE}
+(2.1e8) * (3.4e7)
+```
+
+*Summary: You used scientific notation to represent numbers in R.*
+
+## Variables in R
+
+While R has some features of general purpose programming languages like Python, it is much more strongly focused on data analysis, and in particular has a hierarchy of *data containers*.  In this exercise you'll look at the base-level data containers, *variables*, and in the next assignment you'll look at two more levels of data containers, *vectors* and *lists*.
+
+(a) Use an R code chunk to store 4 in the variable $x$ and -2 in the variable $y$.
+```{r,echo=FALSE}
+x <- 4
+y <- -2
+```
+
+*Note*: You can also use `4 -> x` and `x = 4` to store the value `4` in the variable `x`.  The first reads naturally for someone used to reading left to right, and the second reads naturally for someone used to reading code in other language such as Python.  The `<-` is often preferred as a matter of style, to be consistent with other programming languages but to also visually distinguish R code from Python code.  In RStudio, you can use both R and Python in the same document, and so distinguishing them can be helpful.
+
+(b) Now use an R code chunk to evaluate $2x^2+3xy-5y^2$.  Answer:
+```{r,echo=FALSE}
+2*x^2+3*x*y-5*y^2
+```
+
+(c) Now, write a single code chunk that does (a), then (b).  Evaluate to make sure you have a correct working chunk.  Then in your code chunk, change the 4 to a 0 and the -2 to a 3 and re-evaluate.  Answer:
+```{r,echo=FALSE}
+x <- 0
+y <- 3
+2*x^2+3*x*y-5*y^2
+```
+
+(d) Based on your work in (c), what is the benefit of storing data in variables rather than typing data in by hand?
+
+*Summary: You stored values in variables and used the stored values to evaluate expressions.*
+
+## The Case for Using Variables
+
+When substituting values into R functions, you can substitute the value or a variable the value has been stored in.  Substituting a variable is nearly always better, to avoid user entry error.
+
+(a) Execute the following code chunk to see what happens.
+
+```{r}
+exp(3.123456789)
+```
+
+(b)  Execute the following code chunk to see what happens.
+
+```{r}
+a <- 1.23456789
+exp(a)
+```
+
+*Note*: Typically, we would not "get" the value for `a` by typing it in, but we would read it from a file.  Always try to minimize the amount of direct data entry performed by human agents; each time humans enter data or copy it from one source to another by manually typing it, errors are potentially introduced.  Imagine a system in which a human types a value into a spreadsheet, then a second human reads that value and types it into a Datatel terminal, and a third human reads that value from their datatel screen and types it into their phone, and so on.  It becomes a big game of telephone, with the end result often looking nothing like the original.  Telephone is a fun party game but a disaster for data analysts.
+
+(c) Your buddy Gordon is a bit lazy (though he prefers the term "efficient").  When working with R, Gordon performs a calculation, sees the 10 digit output on the screen, and then types that ten digit output directly into the exponential function.  What are the possible errors that Gordon's choice could cause?
+
+*Note:* In addition to the possibility of causing errors, direct copying of values from screen into code or functions is not seen by readers of your code.  You break the documentation chain when you do this; the reader cannot determine what was done as the value passed out of the screen, into your brain, and then into code in some other part of your analysis.  Storing that value in a well-named variable both avoids error and documents your process.
+
+*Summary: You read some ideas making the case for using variables as compared to typing values.*
+
+## Characters (Strings) in R
+Some data - possibly most? - is stored as strings of characters.  Let's start working with those.
+
+(a) Execute the following code block to define strings and store them in the variables `a` and `b`.  Notice the extra space at the end of the second string.
+
+```{r}
+a <- "apple"
+b <- 'banana '
+```
+
+*Note:* You may use double or single quote to surround a string in R.  Double quotes are my own preference, because single quotes are easily mistaken for the back tick (next to the 1 key on most keyboards), and the back tick is used heavily in RMarkdown documents.
+
+(b)  Use the `nchar` function to count the letters in `a`.  Answer:
+
+```{r,echo=FALSE}
+nchar(a)
+```
+
+(c) Use the `trimws` function to trim the extra whitespace (spaces, new lines, etc.) from `b` and store the result in `b`, then use `nchar` to count the characters in the new `b`.  Answer:
+
+```{r,echo=FALSE}
+b <- trimws(b)
+nchar(b)
+```
+
+(d) Join the two strings `a` and `b` with the `paste` function, using `,` as a separator with `sep`.  Answer:
+
+```{r}
+paste(a,b,sep=",")
+```
+
+(e) Convert the number `1204.73` to a string and store it in `x` by executing the following code chunk.
+
+```{r}
+x <- as.character(1204.73)
+```
+
+(f) Create a string expressing a distance with units, meters, by pasting together the string `x` from (e) with the string "meters".  Answer:
+
+```{r,echo=FALSE}
+paste(x,"meters")
+```
+
+*Summary: You begin working with strings.  You also converted one data type - a number - into another data type - a string.*
+
+## Logicals in R
+
+A logical data type is usually the result of evaluating an expression as true or false.  In R, these are written in all-caps, as `TRUE` and `FALSE`.
+
+(a) Execute the following code chunk to evaluate the truth or falsity of the inequality.
+
+```{r,eval=FALSE}
+sqrt(1234) > 36
+```
+
+(b) The results of evaluating logical statements can be stored in variables.  Execute the following code chunk to store logical results in `a` and `b`.
+
+```{r}
+a <- 3.2^2 < 10
+b <- 7.8*15 > 10^2
+```
+
+*Notes:*  You should be able to see the results in the environment pane in RStudio.  Also note that the logical statement on the right hand side of the assignment operator `<-` is evaluated before the assignment is made.  Some people prefer the `->` assignment operator in this situation,
+
+```{r,eval=FALSE}
+3.2^2 < 10 -> a
+```
+
+because it reads a bit more clearly left to right.  I encourage you to use the assignment operator as presented in the exercise, `<-`, whenever it does not destroy readability.  It is more consistent with other languages such as Python and will be more easily readable to software engineers who code in those languages.  We will see a natural use for `->` later when we discuss data processing pipelines.
+
+(c) Logical statements can be connected by the "and", `&`, and "or", `|`, logical connectives.  Evaluate the following code chunk to see what happens.
+
+```{r}
+a <- 3 < 5
+b <- 7 > 10
+a & b
+a | b
+```
+
+(d) The unary "not" operator is denoted `!` in R.  Execute the following code chunk to see what happens.
+
+```{r}
+!(3<5)
+```
+
+(e) We may encounter situations in which we are given a numeric value `x` and we wish to evaluate whether it meets every one of a set of given constraints.  Write a code chunk with `x <- 5` as the first line, and then evaluates whether `x` is less than 10, whether the square of `x` is greater than 21, and whether the cube of `x` is less than 70.
+
+*Summary: You began working with logicals.*
+
+## Data Types in R: class
+
+State the data type of each of the following expressions in R.  You can use the `class` function, as in
+
+```{r}
+class(1.2)
+```
+
+and
+
+```{r}
+class(2.3>0)
+```
+
+*Note:* If you need finer-grained understanding of the internal representation of data, you can use the `typeof` function instead of class.  Generally, `class` will tell us more about data-oriented things and `typeof` will tell us how the data is represented in our computer's memory.
+
+(a) `7.4^2`
+
+(b) `"December 2, 1921"`
+
+(c) `"greed^2"`
+
+(d) `32.1-10 > 4.0`
+
+(e) The class of an expression can be unexpected, until you understand an important fact about R's behavior: when a logical is used where a numeric *should* be used, the logical is often cast to 1 when `True` and 0 when `False`.  Here's an experiment to see this in action.  
+
+Compute `exp(32.1-10 > 4.0)` in an R code chunk and see what happens!  Compare to $e^1$; did you get the same result?  Now try to evaluate `exp(3 > 5)`.  What happens?  And in particular, what is the class of `exp(3 > 5)`?
+
+*Summary: You began working with data classes with the `class` function.*
+
+## Different Assignment Operators
+
+There are usually a number of different ways to "say" something in R, as in most languages.  Instead of asking "how do I say this?", ask "what are the different ways I can say this, and which is best for this context?"
+
+There are a number of different notations for assigning a value to a variable.  In this exercise we'll look at several.
+
+(a) Execute the code chunk and make sure that `2` is printed.  This verifies that `2` is stored in `a`.
+
+```{r}
+a <- 2
+a
+```
+
+(b) Now let's store `3` in `a` using a different notation.  Execute the following code chunk!
+
+```{r}
+a = 3
+a
+```
+
+(c) Next, store `4` in `a`.  Execute the following code chunk.
+
+```{r}
+4 -> a
+a
+```
+
+(d) This is getting a bit ridiculous, but ... let's store `5` in `a`, and then `6` in `a`.  Execute the following code chunk.
+
+```{r}
+a <<- 5
+a
+6 ->> a
+a
+```
+
+(e) While the `=` sign is most familiar as an assignment operator to coders coming from other languages, it is not the best assignment operator to use in R.  Why not?  First, it is easy to confuse the `=` assignment operator with the `==` logical test.  Second, the arrow distinguishes R code from Python code, important in documents that may use both R and Python.  Third, the arrows are more flexible allowing the variable to be on one side of the assignment or the other.
+
+But why do we have single-headed arrows and double-headed arrows?  Execute the following two code chunks with functions.  We'll discuss functions in more detail later.
+
+```{r}
+a <- 1
+f <- function() {
+  a <- 2
+  print(a)
+}
+f()
+a
+```
+*Note:* calling the function `f` assigns `2` to `a` inside the function's space, or *scope*, and then prints whatever is in `a`.  But this does not affect the values stored in variables outside of the scope of the function.  So, when we execute `a` after `f()`, you should see `1` printed, because the value of `a` outside of `f` did not change.
+
+Same code chunk except with a double arrow head inside the function scope!
+```{r}
+a <- 1
+f <- function() {
+  a <<- 2
+  print(a)
+}
+f()
+a
+```
+
+*Note:*  This time, executing the function `f` does result in a change to the variable `a` outside of the function's scope; that's the effect of the double arrow head!
+
+Generally speaking, you should not change the value of a variable outside the scope of the function without an exceptionally good and well-articulated reason.
+
+*Summary: You learned about different assignment operators in R.*
