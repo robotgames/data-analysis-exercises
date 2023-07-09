@@ -1,5 +1,6 @@
 ---
 title: "Forty Days and Forty Nights of Data"
+subtitle: "Exercises in R for Data Analysts"
 author: "Dr. C. E. Brown"
 date: "2023-07-07"
 site: bookdown::bookdown_site

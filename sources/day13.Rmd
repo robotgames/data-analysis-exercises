@@ -1,0 +1,3 @@
+# Day 13: An Introduction to Statistics
+
+Sampling, samples versus populations, set.seed in R and what it is good for

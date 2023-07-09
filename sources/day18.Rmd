@@ -1,0 +1,5 @@
+# Day 18: Modeling Relationships
+
+graphical, linear models, and so on
+
+hw 9
